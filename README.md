@@ -147,7 +147,7 @@ If you would prefer, there is a [pyproject.toml](pyproject.toml) file for a [Poe
 
 You will need [git](https://git-scm.com/) installed to carry out this step.
 
-Clone this repository:
+For Linux:
 
 ```bash
 bin_path="${HOME}/bin"
@@ -163,7 +163,7 @@ To be able to run the command without changing into the cloned directory, you wi
 For Linux:
 
 ```bash
-echo '${PATH}:${HOME}/bin/ai' >> "${HOME}/.bashrc"
+echo 'export PATH="${PATH}:${HOME}/bin/ai"' >> "${HOME}/.bashrc"
 ```
 
 ### Step 5 - Restart Terminal
