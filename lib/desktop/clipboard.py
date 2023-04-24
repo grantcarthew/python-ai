@@ -1,4 +1,5 @@
 import subprocess
+import rich
 
 def send_to_clipboard(text):
     try:
