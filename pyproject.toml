@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "ai"
+version = "0.1.0"
+description = "Command line interface for OpenAI ChatGPT"
+authors = ["Grant Carthew <grant@carthew.net>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+argparse = "^1.4.0"
+openai = "^0.27.4"
+pick = "^2.2.0"
+prompt-toolkit = "^3.0.38"
+rich = "^13.3.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
