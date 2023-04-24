@@ -1,0 +1,21 @@
+
+Example
+---------------------------------------------------------
+Ask a basic question:
+$ ai "Define Chockers"
+
+List prepared prompts:
+$ ai -lp
+
+Get prompted for a basic question:
+$ ai
+
+Review a Python script:
+$ ai -p python /path/to/doc
+
+Edit the prompts in VSCode:
+$ ai -e
+
+Show the full request details:
+$ ai -v "What is the meaning of life?"
+
