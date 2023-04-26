@@ -11,6 +11,7 @@ prompts_root = Path(AI_PROMPTS_PATH)
 def get_prompt_content(prompt_name: str) -> Optional[str]:
     footer_path = prompts_root / 'footer.md'
     prompt_file = prompts_root / f'{prompt_name}.md'
+    rich.print(prompt_file)
     footer_content = ''
 
     if not footer_path.is_file():
@@ -27,7 +28,10 @@ def get_prompt_content(prompt_name: str) -> Optional[str]:
 
 
 def list_prompts():
-    return sorted([p.stem for p in prompts_root.glob('*.md')])
+    prompts = list()
+    for prompt in prompts_root.glob('**/*.md'):
+        prompts.append(str(prompt.relative_to(prompts_root)).replace('.md', ''))
+    return sorted(prompts)
 
 
 def get_prompt_first_match(filter):

@@ -22,6 +22,7 @@ import sys
 console = Console()
 install()
 
+
 if not os.getenv('OPENAI_API_KEY'):
     rich.print('Please set the OPENAI_API_KEY environment variable')
     sys.exit(1)
