@@ -20,8 +20,12 @@ Please write a **README.md** document for the provided **YAML** text. The **YAML
 
 ## Expected Format
 
-- Title: Descriptive title of the Action.
-- Description: A complete paragraph describing what the Action does.
-- Inputs: Format as a Markdown table with columns of "Input", "Description", and "Required".
-- Outputs: Format as a Markdown table.
-- Example Usage: Before the example, include an italic note of "Note: Check for the latest tag value on the repository and update.".
+- **Title**: Descriptive title of the Action.
+- **Description**: A detailed description of what the Action does.
+- **Inputs**: Format as a Markdown table with columns of "Input", "Description", and "Required".
+- **Outputs**: Format as a Markdown table.
+- **Secrets**: Details about the Secrets the action uses if any.
+- **Environment Variables**: Details about the environment variables the action uses if any.
+- **Example Usage**: An example of how to use the action in a workflow.
+
+Include an italic note of "Note: Check for the latest tag value on the repository and update." before the example.

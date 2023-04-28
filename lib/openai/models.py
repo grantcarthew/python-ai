@@ -1,11 +1,20 @@
 import openai
 import os
 from datetime import datetime, timedelta
+from pick import pick
 from typing import List, Optional
 from lib.definitions import AI_CACHE_PATH
 from lib import cache
+from rich.console import Console
+from rich.table import Table
+import rich
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.environ.get('OPENAI_API_KEY', None)
+
+def assert_openai_api_key():
+    if not openai.api_key:
+        rich.print('Please set the OPENAI_API_KEY environment variable')
+        sys.exit(1)
 
 
 def list_models() -> List:
@@ -45,6 +54,15 @@ def filter_models(filter: str) -> List[dict]:
     return [m for m in models if filter.lower() in m['name'].lower()]
 
 
+def choose_model():
+    models = [m['name'] for m in filter_models('gpt')]
+    try:
+        chosen_model = pick(models, 'Choose a model:', indicator='>')[0]
+    except KeyboardInterrupt:
+        sys.exit(0)
+    return chosen_model
+
+
 def get_latest_model(filter: str) -> Optional[str]:
     """
     Get the latest OpenAI model by a given string.
@@ -56,3 +74,12 @@ def get_latest_model(filter: str) -> Optional[str]:
     if len(models) == 0:
         return None
     return models[0]['name']
+
+def show_model_list():
+    table = Table()
+    table.add_column('[cyan]OpenAI Models[/]', style='magenta', no_wrap=True)
+    table.add_column('[cyan]Created Date[/]', style='magenta', no_wrap=True)
+    for m in list_models_simple():
+        table.add_row(m['name'], m['created'])
+    rich.print(table)
+

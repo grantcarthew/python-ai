@@ -5,13 +5,14 @@ from typing import Optional
 import os
 import rich
 import sys
+from rich.console import Console
+from rich.table import Table
 prompts_root = Path(AI_PROMPTS_PATH)
 
 
 def get_prompt_content(prompt_name: str) -> Optional[str]:
     footer_path = prompts_root / 'footer.md'
     prompt_file = prompts_root / f'{prompt_name}.md'
-    rich.print(prompt_file)
     footer_content = ''
 
     if not footer_path.is_file():
@@ -39,6 +40,19 @@ def get_prompt_first_match(filter):
         return None
     return next((p for p in list_prompts() if filter in p), None)
 
+def get_prompt_match(filter):
+    if not filter:
+        return list()
+    return [p for p in list_prompts() if filter in p]
 
 def get_prompts_path():
     return prompts_root
+
+def show_prompt_list():
+    table = Table()
+    table.add_column('[cyan]Prepared Prompts[/]',
+                     style='magenta', no_wrap=True)
+    for p in list_prompts():
+        table.add_row(p)
+    rich.print(table)
+

@@ -1,98 +1,86 @@
 #!/usr/bin/python
 
+# Python libraries
+import argparse
+import os
+import subprocess
+import sys
 from pathlib import Path
+
+# Third party libraries
+from pick import pick
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
-from lib.desktop.clipboard import send_to_clipboard
-from lib.openai.models import list_models_simple, get_latest_model, list_models
-from lib.openai.prompts import list_prompts, get_prompt_content, get_prompt_first_match, get_prompts_path
-from lib.openai.text import call_gpt_async, call_gpt_sync
 from rich.color import Color
-from rich.rule import Rule
 from rich.console import Console
+from rich.rule import Rule
 from rich.table import Table
 from rich.traceback import install
-import argparse
-import os
-import pick
-import rich
-import subprocess
-import sys
+
+# Internal library
+from lib.args.ai_arguments import argument_parser
+from lib.config import save_config, load_config
+from lib.definitions import AI_HISTORY_PATH
+from lib.desktop.clipboard import send_to_clipboard
+from lib.openai import models
+from lib.openai import prompts
+from lib.openai import text
+
 console = Console()
 install()
 
 
-if not os.getenv('OPENAI_API_KEY'):
-    rich.print('Please set the OPENAI_API_KEY environment variable')
-    sys.exit(1)
+models.assert_openai_api_key()
+argflags = argument_parser()
 
-pwd = Path(__file__).parent
-description = (pwd / 'docs/help/ai/description.txt').resolve().read_text()
-epilog = (pwd / 'docs/help/ai/epilog.txt').resolve().read_text()
 
-parser = argparse.ArgumentParser(
-    formatter_class=argparse.RawDescriptionHelpFormatter,
-    description=description,
-    epilog=epilog)
-parser.add_argument('-i', '--interactive', action='store_true',
-                    help='does not exit after the first response')
-parser.add_argument('-lp', '--list-prompts', action='store_true',
-                    help='lists the prepared prompts')
-parser.add_argument('-lm', '--list-models', action='store_true',
-                    help='lists the available OpenAI models')
-parser.add_argument('-e', '--edit', action='store_true',
-                    help='opens the prompts in VSCode')
-parser.add_argument('-v', '--verbose', action='store_true',
-                    help='shows metadata (synchronous forced)')
-parser.add_argument('-s', '--synchronous', action='store_true',
-                    help='use synchronous calls to OpenAI')
-parser.add_argument('-p', '--prompt', type=str,
-                    default=None, help='prompt name or part there of')
-parser.add_argument('request_or_path', type=str, nargs='?',
-                    default=None, help='your question or a file path')
-args = parser.parse_args()
-
-if args.list_prompts:
-    table = Table()
-    table.add_column('[cyan]Prepared Prompts[/]',
-                     style='magenta', no_wrap=True)
-    for p in list_prompts():
-        table.add_row(p)
-    rich.print(table)
+if argflags['list']:
+    if argflags['list'] == True:
+        try:
+            argflags['list'] = pick(
+                ['prompts', 'models'], 'What would you like to list:', indicator='>')[0]
+        except KeyboardInterrupt:
+            sys.exit(0)
+    if argflags['list'] == 'prompts':
+        prompts.show_prompt_list()
+    if argflags['list'] == 'models':
+        models.show_model_list()
     sys.exit(0)
 
-if args.list_models:
-    table = Table()
-    table.add_column('[cyan]OpenAI Models[/]', style='magenta', no_wrap=True)
-    table.add_column('[cyan]Created Date[/]', style='magenta', no_wrap=True)
-    for m in list_models_simple():
-        table.add_row(m['name'], m['created'])
-    rich.print(table)
-    sys.exit(0)
 
-if args.edit:
-    prompts_path = get_prompts_path()
+if argflags['edit']:
+    prompts_path = prompts.get_prompts_path()
     rich.print('[cyan]Opening prepared prompts path in VSCode[/]')
     rich.print(f'[cyan]Path: "{prompts_path}"[/]')
     subprocess.run(['code', prompts_path])
     sys.exit(0)
 
-history_path = Path.home() / '.config' / 'aihistory'
-if not os.path.exists(history_path):
-    os.makedirs(os.path.dirname(history_path), exist_ok=True)
-    open(history_path, 'a').close()
-session = PromptSession(history=FileHistory(history_path))
 
+session = PromptSession(history=FileHistory(AI_HISTORY_PATH))
+config = load_config()
 messages = list()
 
-prompt_name = None
-if args.prompt:
-    prompt_name = get_prompt_first_match(args.prompt)
-    if prompt_name is None:
-        prompt_name = pick.pick(list_prompts(), 'Choose a prompt:')[0]
 
-    prompt = get_prompt_content(prompt_name)
+model_list = [m['name'] for m in models.filter_models('gpt')]
+if not 'model' in config or not config['model'] in model_list or argflags['change_model']:
+    config['model'] = models.choose_model()
+    save_config(config)
+model_name = config['model']
+
+
+prompt_name = None
+if argflags['prompt']:
+    if len(argflags['prompt']) > 1:
+        try:
+            prompt_name = pick(
+                argflags['prompt'], 'Choose a prepared prompt:', indicator='>')[0]
+        except KeyboardInterrupt:
+            sys.exit(0)
+    if len(argflags['prompt']) == 1:
+        prompt_name = argflags['prompt'][0]
+
+    prompt = prompts.get_prompt_content(prompt_name)
 
     if prompt is None:
         rich.print(f'Error: Prompt "{prompt_name}" does not exist')
@@ -100,33 +88,40 @@ if args.prompt:
     messages.append({'role': 'user', 'content': prompt})
     messages.append({'role': 'assistant', 'content': 'Understood'})
 
-if args.request_or_path is None:
+
+if argflags['file']:
+    file_content = argflags['file'].read_text()
+    messages.append({'role': 'user', 'content': file_content})
+    messages.append({'role': 'assistant', 'content': 'How can I assist you?'})
+
+
+if not argflags['query']:
     try:
         rich.print(
-            '[cyan]Please enter a path to a file, or type a message to start the chat:[/]')
-        args.request_or_path = session.prompt('> ')
+            '[cyan]Type a message to start a chat, or a file path to send the contents:[/]')
+        argflags['query'] = session.prompt('> ')
     except KeyboardInterrupt:
         sys.exit(0)
 
-request_content = args.request_or_path
-if Path(request_content).is_file():
-    request_content = Path(request_content).read_text()
-messages.append({'role': 'user', 'content': request_content})
 
-
-model = get_latest_model('gpt')
+if argflags['query']:
+    query = argflags['query']
+    messages.append({'role': 'user', 'content': query})
 
 
 def print_line():
     console.print(Rule(style='blue'))
 
 
-def print_verbose_details(model, prompt_name, tokens, messages):
+def print_verbose_details(argflags, model_name, prompt_name, tokens, messages):
     rich.print('[bold yellow]Session Details[/]')
+    print_line()
+    rich.print('Command line arguments:')
+    rich.print(argflags)
     print_line()
     rich.print('[yellow]Metadata[/]')
     print_line()
-    rich.print(f'[magenta]Model: [cyan]{model}[/]')
+    rich.print(f'[magenta]Model: [cyan]{model_name}[/]')
     rich.print(f'[magenta]Prompt: [cyan]{prompt_name}[/]')
     if tokens:
         rich.print(f'[magenta]Tokens:[/]')
@@ -142,17 +137,18 @@ def print_verbose_details(model, prompt_name, tokens, messages):
         print_line()
 
 
-if args.interactive:
+def start_interactive_session():
     print_line()
-    rich.print(f'[cyan] ChatGPT | {model} | Type "exit" to quit[/]')
+    rich.print(f'[cyan] ChatGPT | {model_name} | Type "exit" to quit[/]')
     print_line()
-    if args.verbose:
-        print_verbose_details(model, prompt_name, None, messages)
+    if argflags['verbose']:
+        print_verbose_details(argflags, model_name,
+                              prompt_name, None, messages)
     true_color = Color.parse('cyan').get_truecolor()
     hex_color = f'#{true_color[0]:02x}{true_color[1]:02x}{true_color[2]:02x}'
     style = Style.from_dict({'': hex_color})
     while True:
-        response = call_gpt_async(model, messages)
+        response = text.call_gpt_async(model_name, messages)
         try:
             print_line()
             user_message = session.prompt('> ', style=style)
@@ -164,13 +160,16 @@ if args.interactive:
         messages.append({'role': 'user', 'content': user_message})
         messages.append({'role': 'assistant', 'content': response['content']})
 
-sync_call_required = args.synchronous or args.verbose
+if argflags['interactive']:
+    start_interactive_session()
+
+sync_call_required = argflags['synchronous'] or argflags['verbose']
 if sync_call_required:
-    response = call_gpt_sync(model, messages)
+    response = text.call_gpt_sync(model_name, messages)
     finish_reason = response['choices'][0]['finish_reason']
     send_to_clipboard(response['choices'][0]['message']['content'])
 else:
-    response = call_gpt_async(model, messages)
+    response = text.call_gpt_async(model_name, messages)
     finish_reason = response['finish_reason']
     send_to_clipboard(response['content'])
 
@@ -186,13 +185,13 @@ if finish_reason != 'stop':
         rich.print(
             f'[red]Model output stopped for an unknown reason: {finish_reason}[/]')
 
-if args.verbose:
+if argflags['verbose']:
     print_line()
-    rich.print(f'[cyan] ChatGPT | {model}')
+    rich.print(f'[cyan] ChatGPT | {model_name}')
     print_line()
     tokens = (response['usage']['prompt_tokens'], response['usage']
               ['completion_tokens'], response['usage']['total_tokens'])
-    print_verbose_details(model, prompt_name, tokens, messages)
+    print_verbose_details(argflags, model_name, prompt_name, tokens, messages)
 
 if sync_call_required:
     print(response['choices'][0]['message']['content'])
