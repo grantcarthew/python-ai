@@ -12,12 +12,13 @@ If you wish to use the prepared prompts, they must be the first
 command in the terminal after 'ai'.
 
 To work with prepard prompts:
-- 'ai list prompts': To list the existing prompts.
-- 'ai python: Load a prompt for the request.
-- 'ai py': Load the python prompt if there is only one.
-- 'ai aws': Show a list of aws prompts to choose from.
-- 'ai edit': Create, edit, or delete the prepared prompts.
-- 'ai -v <prompt> <query>': View the prompts and messages used.
+
+ai list prompts - To list the existing prompts.
+ai edit - Create, edit, or delete the prepared prompts.
+ai -v <prompt> <query> - View the prompts and messages used.
+ai python - Load the python prompt for the request.
+ai py - Load the python prompt if there is only one.
+ai aws - Show a list of aws prompts to choose from.
 
 There is a footer.md file that is appended to the end of
 every prepared prompt. Review its contents.
@@ -27,13 +28,14 @@ File Review
 The 'command' can be a path to a file such as a Python script.
 
 At any time you can pass three commands such as:
-- 'ai <prepared-prompt> <file-path> <your-query>'
-- 'ai <prepared-prompt> <your-query> <file-path>'
-- 'ai <file-path> <your-query>'
-- 'ai <your-query> <file-path>'
-- 'ai <file-path>'
 
-The file contents will be loaded and sent as a user messages
+ai <prepared-prompt> <file-path> <your-query>
+ai <prepared-prompt> <your-query> <file-path>
+ai <file-path> <your-query>
+ai <your-query> <file-path>
+ai <file-path>
+
+The file contents will be loaded and sent as a user message
 along with the query if provided.
 
 Synchronous
@@ -56,3 +58,18 @@ The history file is located at: '$HOME/.config/aihistory'
 
 Hint: if you point to a file with the 'command' arguments,
 you can then discuss the file.
+
+Temperature
+-----------
+What sampling temperature to use, between 0 and 2.
+Higher values like 0.8 will make the output more random,
+while lower values like 0.2 will make it more focused
+and deterministic.
+
+The default temperature is 0.
+
+Try this:
+
+ai -t 0 "Be creative, one short paragraph"
+ai -t 1 "Be creative, one short paragraph"
+ai -t 2 "Be creative, one short paragraph"
