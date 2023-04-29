@@ -38,6 +38,23 @@ ai <file-path>
 The file contents will be loaded and sent as a user message
 along with the query if provided.
 
+Interactive
+-----------
+If you start an interactive session with 'ai -i', you can have
+longer conversations about a topic. The input prompt supports
+history over multiple runs and CTRL-R for searching history.
+
+The history file is located at: '$HOME/.config/aihistory'
+
+Here is an example:
+
+ai -i "Lets have a chat!"
+
+Hint: if you point to a file with the 'command' arguments,
+you can then discuss the file.
+
+ai -i ./some/file "Please review this file"
+
 Synchronous
 -----------
 By default the 'ai' script responds with content asynchronously
@@ -48,16 +65,28 @@ If you wish you can change this behaviour by using 'ai -s'.
 Note: If you use '-v' for verbose output, synchronous
 calls will be forced.
 
-Interactive
------------
-If you start an interactive session with 'ai -i', you can have
-longer conversations about a topic. The input prompt supports
-history over multiple runs and CTRL-R for searching history.
+Select Model
+------------
+If run for the first time, you will be asked to select which
+GPT model you would like to use. At the time of writing this
+you will have options similar to the following:
 
-The history file is located at: '$HOME/.config/aihistory'
+gpt-4              - Latest of v4, best but expensive.
+gpt-4-0314         - Snapshot of v4, don't use.
+gpt-3.5-turbo-0301 - Snapshot of v3.5, don't use.
+gpt-3.5-turbo      - Latest of v3.5, cost efficient.
 
-Hint: if you point to a file with the 'command' arguments,
-you can then discuss the file.
+Once you have selected, it is saved into a config file:
+~/.config/aiconfig
+
+If you wish to change the model, use the 'ai -c'.
+
+ai -c "3.5 was a stupid answer, I'll try something else"
+
+This will save the changes into the config file.
+
+To see which model you are using, use 'ai -v'.
+
 
 Temperature
 -----------
