@@ -1,13 +1,14 @@
-import openai
-import os
 from datetime import datetime, timedelta
-from pick import pick
-from typing import List, Optional
-from lib.definitions import AI_CACHE_PATH
 from lib import cache
+from lib.definitions import AI_CACHE_PATH
+from pick import pick
 from rich.console import Console
 from rich.table import Table
+from typing import List, Optional
+import openai
+import os
 import rich
+import sys
 
 openai.api_key = os.environ.get('OPENAI_API_KEY', None)
 
