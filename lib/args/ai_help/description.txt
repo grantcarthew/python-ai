@@ -1,0 +1,58 @@
+Sends requests to ChatGPT using the OpenAI API.
+The result is shown in the terminal and copied onto the clipboard.
+
+An OpenAI API key is required:
+export OPENAI_API_KEY=<your-private-key>
+
+Prepared Prompts
+----------------
+You can preload prepared prompts to focus the AI.
+Prepared prompts are Markdown documents in the "prompts" directory.
+If you wish to use the prepared prompts, they must be the first
+command in the terminal after 'ai'.
+
+To work with prepard prompts:
+- 'ai list prompts': To list the existing prompts.
+- 'ai python: Load a prompt for the request.
+- 'ai py': Load the python prompt if there is only one.
+- 'ai aws': Show a list of aws prompts to choose from.
+- 'ai edit': Create, edit, or delete the prepared prompts.
+- 'ai -v <prompt> <query>': View the prompts and messages used.
+
+There is a footer.md file that is appended to the end of
+every prepared prompt. Review its contents.
+
+File Review
+-----------
+The 'command' can be a path to a file such as a Python script.
+
+At any time you can pass three commands such as:
+- 'ai <prepared-prompt> <file-path> <your-query>'
+- 'ai <prepared-prompt> <your-query> <file-path>'
+- 'ai <file-path> <your-query>'
+- 'ai <your-query> <file-path>'
+- 'ai <file-path>'
+
+The file contents will be loaded and sent as a user messages
+along with the query if provided.
+
+Synchronous
+-----------
+By default the 'ai' script responds with content asynchronously
+displaying the response in the terminal as it comes in.
+
+If you wish you can change this behaviour by using 'ai -s'.
+
+Note: If you use '-v' for verbose output, synchronous
+calls will be forced.
+
+Interactive
+-----------
+If you start an interactive session with 'ai -i', you can have
+longer conversations about a topic. The input prompt supports
+history over multiple runs and CTRL-R for searching history.
+
+The history file is located at: '$HOME/.config/aihistory'
+
+Hint: if you point to a file with the 'command' arguments,
+you can then discuss the file.

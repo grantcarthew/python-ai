@@ -2,19 +2,19 @@
 Example
 ---------------------------------------------------------
 Ask a basic question:
-$ ai "Define Chockers"
+$ ai "Define Chockers in Australian slang"
 
 List prepared prompts:
-$ ai -lp
+$ ai list prompts
 
 Get prompted for a basic question:
 $ ai
 
 Review a Python script:
-$ ai -p python /path/to/doc
+$ ai python /path/to/script "Help me fix the bugs in this script"
 
 Edit the prompts in VSCode:
-$ ai -e
+$ ai edit
 
 Show the full request details:
 $ ai -v "What is the meaning of life?"

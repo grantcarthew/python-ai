@@ -14,8 +14,8 @@ def list_type_check(list_type: str) -> Union[bool, str]:
 
 def argument_parser() -> Dict[str, Union[bool, str, Path]]:
     pwd = Path(__file__).parent
-    description = (pwd / 'ai/description.txt').resolve().read_text()
-    epilog = (pwd / 'ai/epilog.txt').resolve().read_text()
+    description = (pwd / 'ai_help/description.txt').resolve().read_text()
+    epilog = (pwd / 'ai_help/epilog.txt').resolve().read_text()
 
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
