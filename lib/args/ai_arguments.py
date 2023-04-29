@@ -14,6 +14,12 @@ def list_type_check(list_type: str) -> Union[bool, str]:
     return True
 
 
+def parse_logic_bias_input(input_str: str) -> Dict[int, int]:
+    key_value_pairs = input_str.split(',')
+    return {int(pair.split(':')[0]): int(pair.split(':')[1]) for pair in key_value_pairs}
+
+
+
 def argument_parser() -> Dict[str, Union[bool, str, Path]]:
     pwd = Path(__file__).parent
     description = (pwd / 'ai_help/description.txt').resolve().read_text()
@@ -34,22 +40,37 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
                         help='Use synchronous calls to OpenAI')
     parser.add_argument('-c', '--change-model', action='store_true',
                         help='Select GPT model used')
-    parser.add_argument('-t', '--temperature', type=float, default=0,
+    parser.add_argument('--temperature', type=float, default=0,
                         help='Set the GPT temperature')
+    parser.add_argument('--presence-penalty', type=float, default=0,
+                        help='Set the GPT presence penalty')
+    parser.add_argument('--frequency-penalty', type=float, default=0,
+                        help='Set the GPT frequency penalty')
+    parser.add_argument('--logit-bias', type=dict, default=None,
+                        help='Pass a logit bias to the GPT model')
 
     args = parser.parse_args()
     argflags = {
         'change_model': False,
         'edit': False,
         'file': False,
+        'frequency_penalty': 0,
         'interactive': False,
         'list': False,
+        'logit_bias': {},
+        'presence_penalty': 0,
         'prompt': False,
         'query': False,
         'synchronous': False,
         'temperature': 0,
         'verbose': False,
     }
+
+    def range_check (name, value, min, max):
+        if value > max or value < min:
+            rprint(f'Error: {name} must be between {min} and {max}')
+            sys.exit(1)
+
 
     if args.change_model:
         argflags['change_model'] = True
@@ -59,11 +80,14 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         argflags['synchronous'] = True
     if args.verbose:
         argflags['verbose'] = True
-    if args.temperature > 2 or args.temperature < 0:
-        rprint('Error: Temperature must be between 0 and 2')
-        sys.exit(1)
-    else:
-        argflags['temperature'] = args.temperature
+    range_check('temperature', args.temperature, 0, 2)
+    range_check('presence_penalty', args.presence_penalty, -2, 2)
+    range_check('frequency_penalty', args.frequency_penalty, -2, 2)
+    argflags['temperature'] = args.temperature
+    argflags['presence_penalty'] = args.presence_penalty
+    argflags['frequency_penalty'] = args.frequency_penalty
+    if args.logit_bias:
+        argflags['logit_bias'] = parse_logic_bias_input(args.logit_bias)
 
     commands_length = len(args.command)
     commands = args.command.copy()

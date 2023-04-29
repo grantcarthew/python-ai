@@ -35,7 +35,6 @@ install()
 models.assert_openai_api_key()
 argflags = argument_parser()
 
-
 if argflags['list']:
     if argflags['list'] == True:
         try:
@@ -149,7 +148,7 @@ def start_interactive_session():
     hex_color = f'#{true_color[0]:02x}{true_color[1]:02x}{true_color[2]:02x}'
     style = Style.from_dict({'': hex_color})
     while True:
-        response = text.call_gpt_async(model_name, messages, argflags['temperature'])
+        response = text.call_gpt_async(model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
         try:
             print_line()
             user_message = session.prompt('> ', style=style)
@@ -166,11 +165,12 @@ if argflags['interactive']:
 
 sync_call_required = argflags['synchronous'] or argflags['verbose']
 if sync_call_required:
-    response = text.call_gpt_sync(model_name, messages, argflags['temperature'])
+    response = text.call_gpt_sync(model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
+    # print(response)
     finish_reason = response['choices'][0]['finish_reason']
     send_to_clipboard(response['choices'][0]['message']['content'])
 else:
-    response = text.call_gpt_async(model_name, messages, argflags['temperature'])
+    response = text.call_gpt_async(model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
     finish_reason = response['finish_reason']
     send_to_clipboard(response['content'])
 

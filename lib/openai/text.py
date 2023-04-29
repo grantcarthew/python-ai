@@ -8,11 +8,20 @@ from lib.openai.prompts import get_prompt_content
 import json
 
 
-def call_gpt_async(model: str, messages: list, temperature: int = 0) -> dict:
+def call_gpt_async(
+        model: str,
+        messages: list,
+        temperature: int = 0,
+        frequency_penalty: int = 0,
+        presence_penalty: int = 0,
+        logit_bias: dict = {}) -> dict:
     response = openai.ChatCompletion.create(
         model=model,
         messages=messages,
         temperature=temperature,
+        frequency_penalty=frequency_penalty,
+        presence_penalty=presence_penalty,
+        logit_bias=logit_bias,
         stream=True
     )
 
@@ -40,12 +49,21 @@ def call_gpt_async(model: str, messages: list, temperature: int = 0) -> dict:
     return {'content': full_reply_content, 'finish_reason': finish_reason}
 
 
-def call_gpt_sync(model: str, messages: list, temperature: int = 0) -> dict:
+def call_gpt_sync(
+        model: str,
+        messages: list,
+        temperature: int = 0,
+        frequency_penalty: int = 0,
+        presence_penalty: int = 0,
+        logit_bias: dict = {}) -> dict:
     try:
         response = openai.ChatCompletion.create(
             model=model,
             messages=messages,
-            temperature=temperature
+            temperature=temperature,
+            frequency_penalty=frequency_penalty,
+            presence_penalty=presence_penalty,
+            logit_bias=logit_bias
         )
     except KeyboardInterrupt:
         sys.exit(0)

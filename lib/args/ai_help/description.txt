@@ -87,10 +87,16 @@ This will save the changes into the config file.
 
 To see which model you are using, use 'ai -v'.
 
+Optional Model Parameters
+=========================
+
+The following are parameters you can use to tweak the
+way the GPT model works. They are not required however,
+feel free to experiment with them.
 
 Temperature
 -----------
-What sampling temperature to use, between 0 and 2.
+What sampling temperature to use, between 0.0 and 2.0.
 Higher values like 0.8 will make the output more random,
 while lower values like 0.2 will make it more focused
 and deterministic.
@@ -99,6 +105,45 @@ The default temperature is 0.
 
 Try this:
 
-ai -t 0 "Be creative, one short paragraph"
-ai -t 1 "Be creative, one short paragraph"
-ai -t 2 "Be creative, one short paragraph"
+ai --temperature 0 "Be creative, one short paragraph"
+ai --temperature 1 "Be creative, one short paragraph"
+ai --temperature 2 "Be creative, one short paragraph"
+
+Presence Penalty
+----------------
+What presence penalty to use, between -2.0 to 2.0.
+Positive values penalize new tokens based on whether
+they appear in the text so far, increasing the model's
+likelihood to talk about new topics.
+
+The default presence penalty is 0.
+
+Frequency Penalty
+-----------------
+What frequency penalty to use, between -2.0 and 2.0.
+Positive values penalize new tokens based on their
+existing frequency in the text so far, decreasing the
+model's likelihood to repeat the same line verbatim.
+
+The default frequency penalty is 0.
+
+Logit Bias
+----------
+Modify the likelihood of specified tokens appearing in
+the completion text.
+
+Mathematically, the bias is added to the logits generated
+by the model prior to sampling. The exact effect will vary
+per model, but values between -1 and 1 should decrease or
+increase likelihood of selection; values like -100 or 100
+should result in a ban or exclusive selection of the relevant
+token.
+
+To pass values into this option, use a comma separated list:
+
+ai "Say the word 'Yes'" --logit-bias '9642:-100'
+
+In this example '6942' is a token id representing 'Yes'.
+
+You will need to determine the token ids via:
+https://github.com/openai/tiktoken
