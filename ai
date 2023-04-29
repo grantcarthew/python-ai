@@ -12,6 +12,7 @@ from pick import pick
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
+from rich import print as rprint
 from rich.color import Color
 from rich.console import Console
 from rich.rule import Rule
@@ -51,8 +52,8 @@ if argflags['list']:
 
 if argflags['edit']:
     prompts_path = prompts.get_prompts_path()
-    rich.print('[cyan]Opening prepared prompts path in VSCode[/]')
-    rich.print(f'[cyan]Path: "{prompts_path}"[/]')
+    rprint('[cyan]Opening prepared prompts path in VSCode[/]')
+    rprint(f'[cyan]Path: "{prompts_path}"[/]')
     subprocess.run(['code', prompts_path])
     sys.exit(0)
 
@@ -83,7 +84,7 @@ if argflags['prompt']:
     prompt = prompts.get_prompt_content(prompt_name)
 
     if prompt is None:
-        rich.print(f'Error: Prompt "{prompt_name}" does not exist')
+        rprint(f'Error: Prompt "{prompt_name}" does not exist')
         sys.exit(1)
     messages.append({'role': 'user', 'content': prompt})
     messages.append({'role': 'assistant', 'content': 'Understood'})
@@ -97,7 +98,7 @@ if argflags['file']:
 
 if not argflags['query']:
     try:
-        rich.print(
+        rprint(
             '[cyan]Type a message to start a chat, or a file path to send the contents:[/]')
         argflags['query'] = session.prompt('> ')
     except KeyboardInterrupt:
@@ -114,32 +115,32 @@ def print_line():
 
 
 def print_verbose_details(argflags, model_name, prompt_name, tokens, messages):
-    rich.print('[bold yellow]Session Details[/]')
+    rprint('[bold yellow]Session Details[/]')
     print_line()
-    rich.print('Command line arguments:')
-    rich.print(argflags)
+    rprint('Command line arguments:')
+    rprint(argflags)
     print_line()
-    rich.print('[yellow]Metadata[/]')
+    rprint('[yellow]Metadata[/]')
     print_line()
-    rich.print(f'[magenta]Model: [cyan]{model_name}[/]')
-    rich.print(f'[magenta]Prompt: [cyan]{prompt_name}[/]')
+    rprint(f'[magenta]Model: [cyan]{model_name}[/]')
+    rprint(f'[magenta]Prompt: [cyan]{prompt_name}[/]')
     if tokens:
-        rich.print(f'[magenta]Tokens:[/]')
-        rich.print(f'[magenta]  Prompt: [cyan]{tokens[0]}[/]')
-        rich.print(f'[magenta]  Completion: [cyan]{tokens[1]}[/]')
-        rich.print(f'[magenta]  Total: [cyan]{tokens[2]}[/]')
+        rprint(f'[magenta]Tokens:[/]')
+        rprint(f'[magenta]  Prompt: [cyan]{tokens[0]}[/]')
+        rprint(f'[magenta]  Completion: [cyan]{tokens[1]}[/]')
+        rprint(f'[magenta]  Total: [cyan]{tokens[2]}[/]')
     print_line()
-    rich.print('[yellow]Messages[/]')
+    rprint('[yellow]Messages[/]')
     print_line()
     for part in messages:
-        rich.print(f'[magenta]Role: {part["role"]}[/]')
-        rich.print(f'[cyan]{part["content"]}[/]')
+        rprint(f'[magenta]Role: {part["role"]}[/]')
+        rprint(f'[cyan]{part["content"]}[/]')
         print_line()
 
 
 def start_interactive_session():
     print_line()
-    rich.print(f'[cyan] ChatGPT | {model_name} | Type "exit" to quit[/]')
+    rprint(f'[cyan] ChatGPT | {model_name} | Type "exit" to quit[/]')
     print_line()
     if argflags['verbose']:
         print_verbose_details(argflags, model_name,
@@ -180,14 +181,14 @@ if finish_reason != 'stop':
         'null': 'API response still in progress or incomplete'
     }
     if finish_reason in known_reasons.keys():
-        rich.print(f'[red]{known_reasons[finish_reason]}[/]')
+        rprint(f'[red]{known_reasons[finish_reason]}[/]')
     else:
-        rich.print(
+        rprint(
             f'[red]Model output stopped for an unknown reason: {finish_reason}[/]')
 
 if argflags['verbose']:
     print_line()
-    rich.print(f'[cyan] ChatGPT | {model_name}')
+    rprint(f'[cyan] ChatGPT | {model_name}')
     print_line()
     tokens = (response['usage']['prompt_tokens'], response['usage']
               ['completion_tokens'], response['usage']['total_tokens'])
