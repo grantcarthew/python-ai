@@ -20,7 +20,7 @@ from rich.table import Table
 from rich.traceback import install
 
 # Internal library
-from lib.args.ai_arguments import argument_parser
+from lib.ai.arguments import argument_parser
 from lib.config import save_config, load_config
 from lib.definitions import AI_HISTORY_PATH
 from lib.desktop.clipboard import send_to_clipboard
@@ -33,23 +33,26 @@ install()
 
 
 models.assert_openai_api_key()
-argflags = argument_parser()
+parsed_arguments = argument_parser()
+flags = parsed_arguments['flags']
+commands = parsed_arguments['commands']
+parameters = parsed_arguments['parameters']
 
-if argflags['list']:
-    if argflags['list'] == True:
+if commands['list']:
+    if commands['list'] == True:
         try:
-            argflags['list'] = pick(
+            commands['list'] = pick(
                 ['prompts', 'models'], 'What would you like to list:', indicator='>')[0]
         except KeyboardInterrupt:
             sys.exit(0)
-    if argflags['list'] == 'prompts':
+    if commands['list'] == 'prompts':
         prompts.show_prompt_list()
-    if argflags['list'] == 'models':
+    if commands['list'] == 'models':
         models.show_model_list()
     sys.exit(0)
 
 
-if argflags['edit']:
+if commands['edit']:
     prompts_path = prompts.get_prompts_path()
     rprint('[cyan]Opening prepared prompts path in VSCode[/]')
     rprint(f'[cyan]Path: "{prompts_path}"[/]')
@@ -63,22 +66,22 @@ messages = list()
 
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
-if not 'model' in config or not config['model'] in model_list or argflags['change_model']:
+if not 'model' in config or not config['model'] in model_list or flags['change_model']:
     config['model'] = models.choose_model()
     save_config(config)
 model_name = config['model']
 
 
 prompt_name = None
-if argflags['prompt']:
-    if len(argflags['prompt']) > 1:
+if commands['prompt']:
+    if len(commands['prompt']) > 1:
         try:
             prompt_name = pick(
-                argflags['prompt'], 'Choose a prepared prompt:', indicator='>')[0]
+                commands['prompt'], 'Choose a prepared prompt:', indicator='>')[0]
         except KeyboardInterrupt:
             sys.exit(0)
-    if len(argflags['prompt']) == 1:
-        prompt_name = argflags['prompt'][0]
+    if len(commands['prompt']) == 1:
+        prompt_name = commands['prompt'][0]
 
     prompt = prompts.get_prompt_content(prompt_name)
 
@@ -89,23 +92,23 @@ if argflags['prompt']:
     messages.append({'role': 'assistant', 'content': 'Understood'})
 
 
-if argflags['file']:
-    file_content = argflags['file'].read_text()
+if commands['file']:
+    file_content = commands['file'].read_text()
     messages.append({'role': 'user', 'content': file_content})
     messages.append({'role': 'assistant', 'content': 'How can I assist you?'})
 
 
-if not argflags['query']:
+if not commands['query']:
     try:
         rprint(
             '[cyan]Type a message to start a chat, or a file path to send the contents:[/]')
-        argflags['query'] = session.prompt('> ')
+        commands['query'] = session.prompt('> ')
     except KeyboardInterrupt:
         sys.exit(0)
 
 
-if argflags['query']:
-    query = argflags['query']
+if commands['query']:
+    query = commands['query']
     messages.append({'role': 'user', 'content': query})
 
 
@@ -113,11 +116,19 @@ def print_line():
     console.print(Rule(style='blue'))
 
 
-def print_verbose_details(argflags, model_name, prompt_name, tokens, messages):
+def print_verbose_details(flags, commands, parameters, model_name, prompt_name, tokens, messages):
     rprint('[bold yellow]Session Details[/]')
     print_line()
     rprint('Command line arguments:')
-    rprint(argflags)
+    print_line()
+    rprint('Flag arguments:')
+    rprint(flags)
+    print_line()
+    rprint('Command arguments:')
+    rprint(commands)
+    print_line()
+    rprint('Parameter arguments:')
+    rprint(parameters)
     print_line()
     rprint('[yellow]Metadata[/]')
     print_line()
@@ -137,7 +148,7 @@ def print_verbose_details(argflags, model_name, prompt_name, tokens, messages):
         print_line()
 
 
-def start_interactive_session(model_name, messages, argflags):
+def start_interactive_session(model_name, messages, flags, commands, parameters):
     def show_command_help():
         rprint(f'[cyan] Available commands:[/]')
         rprint(f'[cyan]   exit[/]')
@@ -148,8 +159,8 @@ def start_interactive_session(model_name, messages, argflags):
     print_line()
     show_command_help()
     print_line()
-    if argflags['verbose']:
-        print_verbose_details(argflags, model_name,
+    if flags['verbose']:
+        print_verbose_details(flags, commands, parameters, model_name,
                               prompt_name, None, messages)
     true_color = Color.parse('cyan').get_truecolor()
     hex_color = f'#{true_color[0]:02x}{true_color[1]:02x}{true_color[2]:02x}'
@@ -157,13 +168,7 @@ def start_interactive_session(model_name, messages, argflags):
     call_api = True
     while True:
         if len(messages) > 0 and call_api:
-            response = text.call_gpt_async(
-                model_name,
-                messages,
-                argflags['temperature'],
-                argflags['frequency_penalty'],
-                argflags['presence_penalty'],
-                argflags['logit_bias'])
+            response = text.call_gpt_async(model_name, messages, parameters)
             messages.append(
                 {'role': 'assistant', 'content': response['content']})
         call_api = True
@@ -187,19 +192,16 @@ def start_interactive_session(model_name, messages, argflags):
         messages.append({'role': 'user', 'content': user_message})
 
 
-if argflags['interactive']:
-    start_interactive_session(model_name, messages, argflags)
+if flags['interactive']:
+    start_interactive_session(model_name, messages, flags, commands, parameters)
 
-sync_call_required = argflags['synchronous'] or argflags['verbose']
+sync_call_required = flags['synchronous'] or flags['verbose']
 if sync_call_required:
-    response = text.call_gpt_sync(
-        model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
-    # print(response)
+    response = text.call_gpt_sync(model_name, messages, parameters)
     finish_reason = response['choices'][0]['finish_reason']
     send_to_clipboard(response['choices'][0]['message']['content'])
 else:
-    response = text.call_gpt_async(
-        model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
+    response = text.call_gpt_async(model_name, messages, parameters)
     finish_reason = response['finish_reason']
     send_to_clipboard(response['content'])
 
@@ -215,13 +217,14 @@ if finish_reason != 'stop':
         rprint(
             f'[red]Model output stopped for an unknown reason: {finish_reason}[/]')
 
-if argflags['verbose']:
+if flags['verbose']:
     print_line()
     rprint(f'[cyan] ChatGPT | {model_name}')
     print_line()
     tokens = (response['usage']['prompt_tokens'], response['usage']
               ['completion_tokens'], response['usage']['total_tokens'])
-    print_verbose_details(argflags, model_name, prompt_name, tokens, messages)
+    print_verbose_details(flags, commands, parameters,
+                          model_name, prompt_name, tokens, messages)
 
 if sync_call_required:
     print(response['choices'][0]['message']['content'])

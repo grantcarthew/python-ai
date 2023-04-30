@@ -14,6 +14,12 @@ def list_type_check(list_type: str) -> Union[bool, str]:
     return True
 
 
+def range_check(name, value, min, max):
+    if value > max or value < min:
+        rprint(f'Error: {name} must be between {min} and {max}')
+        sys.exit(1)
+
+
 def parse_logic_bias_input(input_str: str) -> Dict[int, int]:
     key_value_pairs = input_str.split(',')
     return {int(pair.split(':')[0]): int(pair.split(':')[1]) for pair in key_value_pairs}
@@ -21,8 +27,8 @@ def parse_logic_bias_input(input_str: str) -> Dict[int, int]:
 
 def argument_parser() -> Dict[str, Union[bool, str, Path]]:
     pwd = Path(__file__).parent
-    description = (pwd / 'ai_help/description.txt').resolve().read_text()
-    epilog = (pwd / 'ai_help/epilog.txt').resolve().read_text()
+    description = (pwd / 'help_description.txt').resolve().read_text()
+    epilog = (pwd / 'help_epilog.txt').resolve().read_text()
 
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
@@ -49,74 +55,87 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
                         help='Pass a logit bias to the GPT model')
 
     args = parser.parse_args()
-    argflags = {
+    flags = {
         'change_model': False,
+        'interactive': False,
+        'synchronous': False,
+        'verbose': False
+    }
+    commands = {
+        'config': False,
         'edit': False,
         'file': False,
-        'frequency_penalty': 0,
-        'interactive': False,
         'list': False,
-        'logit_bias': {},
-        'presence_penalty': 0,
+        'load': False,
         'prompt': False,
         'query': False,
-        'synchronous': False,
-        'temperature': 0,
-        'verbose': False,
+        'save': False
+    }
+    parameters = {
+        'frequency_penalty': 0,
+        'logit_bias': {},
+        'presence_penalty': 0,
+        'temperature': 0
     }
 
-    def range_check(name, value, min, max):
-        if value > max or value < min:
-            rprint(f'Error: {name} must be between {min} and {max}')
-            sys.exit(1)
-
     if args.change_model:
-        argflags['change_model'] = True
+        flags['change_model'] = True
     if args.interactive:
-        argflags['interactive'] = True
+        flags['interactive'] = True
     if args.synchronous:
-        argflags['synchronous'] = True
+        flags['synchronous'] = True
     if args.verbose:
-        argflags['verbose'] = True
+        flags['verbose'] = True
     range_check('temperature', args.temperature, 0, 2)
     range_check('presence_penalty', args.presence_penalty, -2, 2)
     range_check('frequency_penalty', args.frequency_penalty, -2, 2)
-    argflags['temperature'] = args.temperature
-    argflags['presence_penalty'] = args.presence_penalty
-    argflags['frequency_penalty'] = args.frequency_penalty
+    parameters['temperature'] = args.temperature
+    parameters['presence_penalty'] = args.presence_penalty
+    parameters['frequency_penalty'] = args.frequency_penalty
     if args.logit_bias:
-        argflags['logit_bias'] = parse_logic_bias_input(args.logit_bias)
+        parameters['logit_bias'] = parse_logic_bias_input(
+            args.logit_bias)
 
     commands_length = len(args.command)
-    commands = args.command.copy()
+    command_list = args.command.copy()
 
     if commands_length < 1:
-        return argflags
-    if commands[0].lower() == 'edit':
-        argflags['edit'] = True
-        return argflags
-    if commands[0].lower() == 'list':
+        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+    if command_list[0].lower() == 'edit':
+        commands['edit'] = True
+        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+    if command_list[0].lower() == 'list':
         if commands_length > 1:
-            argflags['list'] = list_type_check(commands[1])
-            return argflags
-        argflags['list'] = True
-        return argflags
+            commands['list'] = list_type_check(command_list[1])
+            return {'flags': flags, 'commands': commands, 'parameters': parameters}
+        commands['list'] = True
+        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+    if command_list[0].lower() == 'config'.lower():
+        commands['config'] = True
+        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+    if command_list[0].lower() == 'save'.lower():
+        commands['save'] = True
+        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+    if command_list[0].lower() == 'load'.lower():
+        commands['load'] = True
+        return {'flags': flags, 'commands': commands, 'parameters': parameters}
 
-    prompt = get_prompt_match(commands[0])
+    prompt = get_prompt_match(command_list[0])
     if len(prompt) > 0:
-        argflags['prompt'] = prompt
-        commands.pop(0)
+        commands['prompt'] = prompt
+        command_list.pop(0)
 
+    # There may be 0 or more commands
     # If command is a file, read its contents
     # If command is not a file, save it as the query
-    for arg_string in commands:
+    for arg_string in command_list:
         # Filesystem error management
         # Ignoring some errors and displaying unknown errors
         # All errors are non-blocking
         file_error = False
         try:
             if Path(arg_string).is_file():
-                argflags['file'] = Path(arg_string)
+                commands['file'] = Path(arg_string)
                 continue
         except OSError as err:
             if 'File name too long' in str(err):
@@ -131,6 +150,6 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
             rprint(f'[red]Non-blocking error:[/]')
             rprint(f'[red]{file_error}[/]')
 
-        argflags['query'] = arg_string
+        commands['query'] = arg_string
 
-    return argflags
+    return {'flags': flags, 'commands': commands, 'parameters': parameters}
