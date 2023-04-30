@@ -137,9 +137,16 @@ def print_verbose_details(argflags, model_name, prompt_name, tokens, messages):
         print_line()
 
 
-def start_interactive_session():
+def start_interactive_session(model_name, messages, argflags):
+    def show_command_help():
+        rprint(f'[cyan] Available commands:[/]')
+        rprint(f'[cyan]   exit[/]')
+        rprint(f'[cyan]   reset[/]')
+        rprint(f'[cyan]   help[/]')
     print_line()
-    rprint(f'[cyan] ChatGPT | {model_name} | Type "exit" to quit[/]')
+    rprint(f'[cyan] ChatGPT | {model_name}[/]')
+    print_line()
+    show_command_help()
     print_line()
     if argflags['verbose']:
         print_verbose_details(argflags, model_name,
@@ -147,8 +154,19 @@ def start_interactive_session():
     true_color = Color.parse('cyan').get_truecolor()
     hex_color = f'#{true_color[0]:02x}{true_color[1]:02x}{true_color[2]:02x}'
     style = Style.from_dict({'': hex_color})
+    call_api = True
     while True:
-        response = text.call_gpt_async(model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
+        if len(messages) > 0 and call_api:
+            response = text.call_gpt_async(
+                model_name,
+                messages,
+                argflags['temperature'],
+                argflags['frequency_penalty'],
+                argflags['presence_penalty'],
+                argflags['logit_bias'])
+            messages.append(
+                {'role': 'assistant', 'content': response['content']})
+        call_api = True
         try:
             print_line()
             user_message = session.prompt('> ', style=style)
@@ -157,20 +175,31 @@ def start_interactive_session():
             sys.exit(0)
         if user_message.lower() == 'exit'.lower():
             sys.exit(0)
+        if user_message.lower() == 'reset'.lower():
+            messages = list()
+            call_api = False
+            rprint(f'[cyan] Session Reset | {model_name}')
+            continue
+        if user_message.lower() == 'help'.lower():
+            show_command_help()
+            call_api = False
+            continue
         messages.append({'role': 'user', 'content': user_message})
-        messages.append({'role': 'assistant', 'content': response['content']})
+
 
 if argflags['interactive']:
-    start_interactive_session()
+    start_interactive_session(model_name, messages, argflags)
 
 sync_call_required = argflags['synchronous'] or argflags['verbose']
 if sync_call_required:
-    response = text.call_gpt_sync(model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
+    response = text.call_gpt_sync(
+        model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
     # print(response)
     finish_reason = response['choices'][0]['finish_reason']
     send_to_clipboard(response['choices'][0]['message']['content'])
 else:
-    response = text.call_gpt_async(model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
+    response = text.call_gpt_async(
+        model_name, messages, argflags['temperature'], argflags['frequency_penalty'], argflags['presence_penalty'],  argflags['logit_bias'])
     finish_reason = response['finish_reason']
     send_to_clipboard(response['content'])
 

@@ -46,6 +46,12 @@ history over multiple runs and CTRL-R for searching history.
 
 The history file is located at: '$HOME/.config/aihistory'
 
+Interactive mode supports the following commands:
+
+  exit  - End the session
+  reset - Remove messages and start a fresh
+  help  - Show this command help
+
 Here is an example:
 
 ai -i "Lets have a chat!"
