@@ -19,7 +19,6 @@ def parse_logic_bias_input(input_str: str) -> Dict[int, int]:
     return {int(pair.split(':')[0]): int(pair.split(':')[1]) for pair in key_value_pairs}
 
 
-
 def argument_parser() -> Dict[str, Union[bool, str, Path]]:
     pwd = Path(__file__).parent
     description = (pwd / 'ai_help/description.txt').resolve().read_text()
@@ -66,11 +65,10 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         'verbose': False,
     }
 
-    def range_check (name, value, min, max):
+    def range_check(name, value, min, max):
         if value > max or value < min:
             rprint(f'Error: {name} must be between {min} and {max}')
             sys.exit(1)
-
 
     if args.change_model:
         argflags['change_model'] = True
@@ -109,10 +107,30 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         argflags['prompt'] = prompt
         commands.pop(0)
 
+    # If command is a file, read its contents
+    # If command is not a file, save it as the query
     for arg_string in commands:
-        if Path(arg_string).is_file():
-            argflags['file'] = Path(arg_string)
-            continue
+        # Filesystem error management
+        # Ignoring some errors and displaying unknown errors
+        # All errors are non-blocking
+        file_error = False
+        try:
+            if Path(arg_string).is_file():
+                argflags['file'] = Path(arg_string)
+                continue
+        except OSError as err:
+            if 'File name too long' in str(err):
+                # Ignoring file name too long, not a filesystem path
+                pass
+            else:
+                file_error = err
+        except Exception as err:
+            file_error = err
+
+        if file_error:
+            rprint(f'[red]Non-blocking error:[/]')
+            rprint(f'[red]{file_error}[/]')
+
         argflags['query'] = arg_string
 
     return argflags
