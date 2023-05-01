@@ -66,7 +66,7 @@ If you start an interactive session with 'ai -i', you can have
 longer conversations about a topic. The input prompt supports
 history over multiple runs and CTRL-R for searching history.
 
-The history file is located at: '$HOME/.config/aihistory'
+The history file is located at: '$HOME/.config/ai/history'
 
 Hint: if you point to a file with the 'request_or_path' argument,
 you can then discuss the file.

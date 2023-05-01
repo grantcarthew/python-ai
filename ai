@@ -31,12 +31,13 @@ from lib.openai import text
 console = Console()
 install()
 
-
 models.assert_openai_api_key()
-parsed_arguments = argument_parser()
-flags = parsed_arguments['flags']
-commands = parsed_arguments['commands']
-parameters = parsed_arguments['parameters']
+flags, commands, parameters = argument_parser()
+
+if flags['debug']:
+    rprint(f'flags: {flags}')
+    rprint(f'commands: {commands}')
+    rprint(f'parameters: {parameters}')
 
 if commands['list']:
     if commands['list'] == True:
@@ -66,8 +67,8 @@ messages = list()
 
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
-if not 'model' in config or not config['model'] in model_list or flags['change_model']:
-    config['model'] = models.choose_model()
+if not config.get('model') or not config['model'] in model_list or flags['change_model']:
+    config['model'] = models.choose_model(config.get('model'))
     save_config(config)
 model_name = config['model']
 
@@ -98,11 +99,12 @@ if commands['file']:
     messages.append({'role': 'assistant', 'content': 'How can I assist you?'})
 
 
-if not commands['query']:
+if not commands['query'] and not flags['interactive']:
     try:
-        rprint(
-            '[cyan]Type a message to start a chat, or a file path to send the contents:[/]')
-        commands['query'] = session.prompt('> ')
+        while not commands['query']:
+            rprint(
+                '[cyan]Type a message to start a chat, or a file path to send the contents:[/]')
+            commands['query'] = session.prompt('> ')
     except KeyboardInterrupt:
         sys.exit(0)
 
@@ -167,13 +169,15 @@ def start_interactive_session(model_name, messages, flags, commands, parameters)
     style = Style.from_dict({'': hex_color})
     call_api = True
     while True:
+        if flags['debug']:
+            rprint(f'messages: {messages}')
         if len(messages) > 0 and call_api:
             response = text.call_gpt_async(model_name, messages, parameters)
             messages.append(
                 {'role': 'assistant', 'content': response['content']})
+            print_line()
         call_api = True
         try:
-            print_line()
             user_message = session.prompt('> ', style=style)
             print_line()
         except KeyboardInterrupt:
@@ -193,8 +197,11 @@ def start_interactive_session(model_name, messages, flags, commands, parameters)
 
 
 if flags['interactive']:
-    start_interactive_session(model_name, messages, flags, commands, parameters)
+    start_interactive_session(model_name, messages,
+                              flags, commands, parameters)
 
+if flags['debug']:
+    rprint(f'messages: {messages}')
 sync_call_required = flags['synchronous'] or flags['verbose']
 if sync_call_required:
     response = text.call_gpt_sync(model_name, messages, parameters)

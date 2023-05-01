@@ -44,7 +44,7 @@ If you start an interactive session with 'ai -i', you can have
 longer conversations about a topic. The input prompt supports
 history over multiple runs and CTRL-R for searching history.
 
-The history file is located at: '$HOME/.config/aihistory'
+The history file is located at: $HOME/.config/ai/history
 
 Interactive mode supports the following commands:
 
@@ -83,7 +83,7 @@ gpt-3.5-turbo-0301 - Snapshot of v3.5, don't use.
 gpt-3.5-turbo      - Latest of v3.5, cost efficient.
 
 Once you have selected, it is saved into a config file:
-~/.config/aiconfig
+$HOME/.config/ai/config
 
 If you wish to change the model, use the 'ai -c'.
 

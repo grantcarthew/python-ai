@@ -55,10 +55,13 @@ def filter_models(filter: str) -> List[dict]:
     return [m for m in models if filter.lower() in m['name'].lower()]
 
 
-def choose_model():
+def choose_model(current_model: str = None) -> str:
     models = [m['name'] for m in filter_models('gpt')]
     try:
-        chosen_model = pick(models, 'Choose a model:', indicator='>')[0]
+        default_index = 0
+        if current_model:
+            default_index = models.index(current_model)
+        chosen_model = pick(models, f'Previous model: {current_model}\nChoose a model:', indicator='>', default_index=default_index)[0]
     except KeyboardInterrupt:
         sys.exit(0)
     return chosen_model

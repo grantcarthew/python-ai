@@ -53,13 +53,16 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
                         help='Set the GPT frequency penalty')
     parser.add_argument('--logit-bias', type=dict, default=None,
                         help='Pass a logit bias to the GPT model')
+    parser.add_argument('--debug', action='store_true',
+                        help='Enables debug output')
 
     args = parser.parse_args()
     flags = {
-        'change_model': False,
-        'interactive': False,
-        'synchronous': False,
-        'verbose': False
+        'change_model': args.change_model,
+        'debug': args.debug,
+        'interactive': args.interactive,
+        'synchronous': args.synchronous,
+        'verbose': args.verbose
     }
     commands = {
         'config': False,
@@ -78,14 +81,6 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         'temperature': 0
     }
 
-    if args.change_model:
-        flags['change_model'] = True
-    if args.interactive:
-        flags['interactive'] = True
-    if args.synchronous:
-        flags['synchronous'] = True
-    if args.verbose:
-        flags['verbose'] = True
     range_check('temperature', args.temperature, 0, 2)
     range_check('presence_penalty', args.presence_penalty, -2, 2)
     range_check('frequency_penalty', args.frequency_penalty, -2, 2)
@@ -96,29 +91,29 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         parameters['logit_bias'] = parse_logic_bias_input(
             args.logit_bias)
 
-    commands_length = len(args.command)
+    command_count = len(args.command)
     command_list = args.command.copy()
 
-    if commands_length < 1:
-        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+    if command_count < 1:
+        return (flags, commands, parameters)
     if command_list[0].lower() == 'edit':
         commands['edit'] = True
-        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+        return (flags, commands, parameters)
     if command_list[0].lower() == 'list':
-        if commands_length > 1:
+        if command_count > 1:
             commands['list'] = list_type_check(command_list[1])
-            return {'flags': flags, 'commands': commands, 'parameters': parameters}
+            return (flags, commands, parameters)
         commands['list'] = True
-        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+        return (flags, commands, parameters)
     if command_list[0].lower() == 'config'.lower():
         commands['config'] = True
-        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+        return (flags, commands, parameters)
     if command_list[0].lower() == 'save'.lower():
         commands['save'] = True
-        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+        return (flags, commands, parameters)
     if command_list[0].lower() == 'load'.lower():
         commands['load'] = True
-        return {'flags': flags, 'commands': commands, 'parameters': parameters}
+        return (flags, commands, parameters)
 
     prompt = get_prompt_match(command_list[0])
     if len(prompt) > 0:
@@ -152,4 +147,4 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
 
         commands['query'] = arg_string
 
-    return {'flags': flags, 'commands': commands, 'parameters': parameters}
+    return (flags, commands, parameters)
