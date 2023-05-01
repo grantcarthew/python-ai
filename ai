@@ -29,6 +29,7 @@ from lib.openai import prompts
 from lib.openai import text
 
 console = Console()
+console_stderr = Console(file=sys.stderr)
 install()
 
 models.assert_openai_api_key()
@@ -114,7 +115,10 @@ if commands['query']:
     messages.append({'role': 'user', 'content': query})
 
 
-def print_line():
+def print_line(to_stderr: bool = False):
+    if to_stderr:
+        console_stderr.print(Rule(style='blue'))
+        return
     console.print(Rule(style='blue'))
 
 
@@ -151,7 +155,7 @@ def print_verbose_details(flags, commands, parameters, model_name, prompt_name, 
 
 
 def start_interactive_session(model_name, messages, flags, commands, parameters):
-    def show_command_help():
+    def show_interactive_command_help():
         rprint(f'[cyan] Available commands:[/]')
         rprint(f'[cyan]   exit[/]')
         rprint(f'[cyan]   reset[/]')
@@ -159,7 +163,7 @@ def start_interactive_session(model_name, messages, flags, commands, parameters)
     print_line()
     rprint(f'[cyan] ChatGPT | {model_name}[/]')
     print_line()
-    show_command_help()
+    show_interactive_command_help()
     print_line()
     if flags['verbose']:
         print_verbose_details(flags, commands, parameters, model_name,
@@ -190,7 +194,7 @@ def start_interactive_session(model_name, messages, flags, commands, parameters)
             rprint(f'[cyan] Session Reset | {model_name}')
             continue
         if user_message.lower() == 'help'.lower():
-            show_command_help()
+            show_interactive_command_help()
             call_api = False
             continue
         messages.append({'role': 'user', 'content': user_message})
@@ -202,6 +206,11 @@ if flags['interactive']:
 
 if flags['debug']:
     rprint(f'messages: {messages}')
+
+print_line(to_stderr=True)
+rprint(f'[cyan] ChatGPT | {model_name}[/]', file=sys.stderr)
+print_line(to_stderr=True)
+
 sync_call_required = flags['synchronous'] or flags['verbose']
 if sync_call_required:
     response = text.call_gpt_sync(model_name, messages, parameters)
