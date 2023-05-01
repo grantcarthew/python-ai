@@ -121,6 +121,15 @@ def print_line(to_stderr: bool = False):
         return
     console.print(Rule(style='blue'))
 
+def print_title(model_name, to_stderr: bool = False):
+    print_line(to_stderr)
+    title = f'[cyan]ChatGPT | {model_name}[/]'
+    if to_stderr:
+        rprint(title, file=sys.stderr)
+    else:
+        rprint(title)
+    print_line(to_stderr)
+
 
 def print_verbose_details(flags, commands, parameters, model_name, prompt_name, tokens, messages):
     rprint('[bold yellow]Session Details[/]')
@@ -160,9 +169,7 @@ def start_interactive_session(model_name, messages, flags, commands, parameters)
         rprint(f'[cyan]   exit[/]')
         rprint(f'[cyan]   reset[/]')
         rprint(f'[cyan]   help[/]')
-    print_line()
-    rprint(f'[cyan] ChatGPT | {model_name}[/]')
-    print_line()
+    print_title(model_name)
     show_interactive_command_help()
     print_line()
     if flags['verbose']:
@@ -207,9 +214,7 @@ if flags['interactive']:
 if flags['debug']:
     rprint(f'messages: {messages}')
 
-print_line(to_stderr=True)
-rprint(f'[cyan] ChatGPT | {model_name}[/]', file=sys.stderr)
-print_line(to_stderr=True)
+print_title(model_name, to_stderr=True)
 
 sync_call_required = flags['synchronous'] or flags['verbose']
 if sync_call_required:
@@ -234,9 +239,7 @@ if finish_reason != 'stop':
             f'[red]Model output stopped for an unknown reason: {finish_reason}[/]')
 
 if flags['verbose']:
-    print_line()
-    rprint(f'[cyan] ChatGPT | {model_name}')
-    print_line()
+    print_title(model_name)
     tokens = (response['usage']['prompt_tokens'], response['usage']
               ['completion_tokens'], response['usage']['total_tokens'])
     print_verbose_details(flags, commands, parameters,
