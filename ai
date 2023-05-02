@@ -1,35 +1,20 @@
 #!/usr/bin/python
 
-# Python libraries
-import argparse
-import os
-import subprocess
-import sys
-from pathlib import Path
-
 # Third party libraries
-from pick import pick
-from prompt_toolkit import PromptSession
-from prompt_toolkit.history import FileHistory
-from prompt_toolkit.styles import Style
 from rich import print as rprint
-from rich.color import Color
-from rich.console import Console
-from rich.rule import Rule
-from rich.table import Table
 from rich.traceback import install
 
 # Internal library
+from lib.ai import commands as ai_commands
 from lib.ai.arguments import argument_parser
+from lib.ai.print import print_line, print_title, print_verbose_details
+from lib.ai.session import interactive_session, passive_session, finish_reason_check
+from lib.ai.user_input import initial_message
 from lib.config import save_config, load_config
-from lib.definitions import AI_HISTORY_PATH
 from lib.desktop.clipboard import send_to_clipboard
 from lib.openai import models
-from lib.openai import prompts
-from lib.openai import text
 
-console = Console()
-console_stderr = Console(file=sys.stderr)
+# This install function from 'rich' adds syntax highlighting to exceptions
 install()
 
 models.assert_openai_api_key()
@@ -41,31 +26,12 @@ if flags['debug']:
     rprint(f'parameters: {parameters}')
 
 if commands['list']:
-    if commands['list'] == True:
-        try:
-            commands['list'] = pick(
-                ['prompts', 'models'], 'What would you like to list:', indicator='>')[0]
-        except KeyboardInterrupt:
-            sys.exit(0)
-    if commands['list'] == 'prompts':
-        prompts.show_prompt_list()
-    if commands['list'] == 'models':
-        models.show_model_list()
-    sys.exit(0)
-
-
+    ai_commands.list(commands['list'])
 if commands['edit']:
-    prompts_path = prompts.get_prompts_path()
-    rprint('[cyan]Opening prepared prompts path in VSCode[/]')
-    rprint(f'[cyan]Path: "{prompts_path}"[/]')
-    subprocess.run(['code', prompts_path])
-    sys.exit(0)
+    ai_commands.edit(commands['edit'])
 
-
-session = PromptSession(history=FileHistory(AI_HISTORY_PATH))
 config = load_config()
 messages = list()
-
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
 if not config.get('model') or not config['model'] in model_list or flags['change_model']:
@@ -73,177 +39,44 @@ if not config.get('model') or not config['model'] in model_list or flags['change
     save_config(config)
 model_name = config['model']
 
-
-prompt_name = None
-if commands['prompt']:
-    if len(commands['prompt']) > 1:
-        try:
-            prompt_name = pick(
-                commands['prompt'], 'Choose a prepared prompt:', indicator='>')[0]
-        except KeyboardInterrupt:
-            sys.exit(0)
-    if len(commands['prompt']) == 1:
-        prompt_name = commands['prompt'][0]
-
-    prompt = prompts.get_prompt_content(prompt_name)
-
-    if prompt is None:
-        rprint(f'Error: Prompt "{prompt_name}" does not exist')
-        sys.exit(1)
+prompt_name, prompt = ai_commands.prompt(commands['prompt'])
+if prompt:
     messages.append({'role': 'user', 'content': prompt})
     messages.append({'role': 'assistant', 'content': 'Understood'})
 
-
-if commands['file']:
-    file_content = commands['file'].read_text()
+file_content = ai_commands.file(commands['file'])
+if file_content:
     messages.append({'role': 'user', 'content': file_content})
     messages.append({'role': 'assistant', 'content': 'How can I assist you?'})
 
-
 if not commands['query'] and not flags['interactive']:
-    try:
-        while not commands['query']:
-            rprint(
-                '[cyan]Type a message to start a chat, or a file path to send the contents:[/]')
-            commands['query'] = session.prompt('> ')
-    except KeyboardInterrupt:
-        sys.exit(0)
-
+    while not commands['query']:
+        commands['query'] = initial_message()
 
 if commands['query']:
-    query = commands['query']
-    messages.append({'role': 'user', 'content': query})
-
-
-def print_line(to_stderr: bool = False):
-    if to_stderr:
-        console_stderr.print(Rule(style='blue'))
-        return
-    console.print(Rule(style='blue'))
-
-def print_title(model_name, to_stderr: bool = False):
-    print_line(to_stderr)
-    title = f'[cyan]ChatGPT | {model_name}[/]'
-    if to_stderr:
-        rprint(title, file=sys.stderr)
-    else:
-        rprint(title)
-    print_line(to_stderr)
-
-
-def print_verbose_details(flags, commands, parameters, model_name, prompt_name, tokens, messages):
-    rprint('[bold yellow]Session Details[/]')
-    print_line()
-    rprint('Command line arguments:')
-    print_line()
-    rprint('Flag arguments:')
-    rprint(flags)
-    print_line()
-    rprint('Command arguments:')
-    rprint(commands)
-    print_line()
-    rprint('Parameter arguments:')
-    rprint(parameters)
-    print_line()
-    rprint('[yellow]Metadata[/]')
-    print_line()
-    rprint(f'[magenta]Model: [cyan]{model_name}[/]')
-    rprint(f'[magenta]Prompt: [cyan]{prompt_name}[/]')
-    if tokens:
-        rprint(f'[magenta]Tokens:[/]')
-        rprint(f'[magenta]  Prompt: [cyan]{tokens[0]}[/]')
-        rprint(f'[magenta]  Completion: [cyan]{tokens[1]}[/]')
-        rprint(f'[magenta]  Total: [cyan]{tokens[2]}[/]')
-    print_line()
-    rprint('[yellow]Messages[/]')
-    print_line()
-    for part in messages:
-        rprint(f'[magenta]Role: {part["role"]}[/]')
-        rprint(f'[cyan]{part["content"]}[/]')
-        print_line()
-
-
-def start_interactive_session(model_name, messages, flags, commands, parameters):
-    def show_interactive_command_help():
-        rprint(f'[cyan] Available commands:[/]')
-        rprint(f'[cyan]   exit[/]')
-        rprint(f'[cyan]   reset[/]')
-        rprint(f'[cyan]   help[/]')
-    print_title(model_name)
-    show_interactive_command_help()
-    print_line()
-    if flags['verbose']:
-        print_verbose_details(flags, commands, parameters, model_name,
-                              prompt_name, None, messages)
-    true_color = Color.parse('cyan').get_truecolor()
-    hex_color = f'#{true_color[0]:02x}{true_color[1]:02x}{true_color[2]:02x}'
-    style = Style.from_dict({'': hex_color})
-    call_api = True
-    while True:
-        if flags['debug']:
-            rprint(f'messages: {messages}')
-        if len(messages) > 0 and call_api:
-            response = text.call_gpt_async(model_name, messages, parameters)
-            messages.append(
-                {'role': 'assistant', 'content': response['content']})
-            print_line()
-        call_api = True
-        try:
-            user_message = session.prompt('> ', style=style)
-            print_line()
-        except KeyboardInterrupt:
-            sys.exit(0)
-        if user_message.lower() == 'exit'.lower():
-            sys.exit(0)
-        if user_message.lower() == 'reset'.lower():
-            messages = list()
-            call_api = False
-            rprint(f'[cyan] Session Reset | {model_name}')
-            continue
-        if user_message.lower() == 'help'.lower():
-            show_interactive_command_help()
-            call_api = False
-            continue
-        messages.append({'role': 'user', 'content': user_message})
-
+    messages.append({'role': 'user', 'content': commands['query']})
 
 if flags['interactive']:
-    start_interactive_session(model_name, messages,
-                              flags, commands, parameters)
+    if flags['verbose']:
+        print_verbose_details(model_name, messages, flags,
+                              commands, parameters, prompt_name, None)
+    interactive_session(model_name, messages, flags, commands, parameters)
 
 if flags['debug']:
     rprint(f'messages: {messages}')
 
 print_title(model_name, to_stderr=True)
 
-sync_call_required = flags['synchronous'] or flags['verbose']
-if sync_call_required:
-    response = text.call_gpt_sync(model_name, messages, parameters)
-    finish_reason = response['choices'][0]['finish_reason']
-    send_to_clipboard(response['choices'][0]['message']['content'])
-else:
-    response = text.call_gpt_async(model_name, messages, parameters)
-    finish_reason = response['finish_reason']
-    send_to_clipboard(response['content'])
+session_data = passive_session(
+    model_name, messages, flags, commands, parameters)
 
-if finish_reason != 'stop':
-    known_reasons = {
-        'length': 'Incomplete model output due to max_tokens parameter or token limit',
-        'content_filter': 'Omitted content due to a flag from our content filters',
-        'null': 'API response still in progress or incomplete'
-    }
-    if finish_reason in known_reasons.keys():
-        rprint(f'[red]{known_reasons[finish_reason]}[/]')
-    else:
-        rprint(
-            f'[red]Model output stopped for an unknown reason: {finish_reason}[/]')
+finish_reason_check(session_data['finish_reason'])
 
 if flags['verbose']:
     print_title(model_name)
-    tokens = (response['usage']['prompt_tokens'], response['usage']
-              ['completion_tokens'], response['usage']['total_tokens'])
-    print_verbose_details(flags, commands, parameters,
-                          model_name, prompt_name, tokens, messages)
+    print_verbose_details(model_name, messages, flags, commands,
+                          parameters, prompt_name, session_data['tokens'])
 
-if sync_call_required:
-    print(response['choices'][0]['message']['content'])
+send_to_clipboard(session_data['content'])
+if flags['synchronous'] or flags['verbose']:
+    print(session_data['content'])
