@@ -4,6 +4,7 @@ from rich import print as rprint
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
+import sys
 
 session = PromptSession(history=FileHistory(AI_HISTORY_PATH))
 
@@ -15,6 +16,6 @@ def initial_message():
         rprint('[cyan]Multiline input enabled[/]')
         print_line()
         rprint('[white]ESCAPE then ENTER to submit:[/]')
-        return session.prompt('> ', multiline=True)
+        return session.prompt('> ', multiline=True, prompt_continuation='> ')
     except KeyboardInterrupt:
         sys.exit(0)
