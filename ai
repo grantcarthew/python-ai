@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
 # Third party libraries
+import sys
+from lib.ai.user_input import choose_saved_chat
+from lib.ai import io
 from rich import print as rprint
 from rich.traceback import install
 
@@ -16,6 +19,7 @@ from lib.openai import models
 
 # This install function from 'rich' adds syntax highlighting to exceptions
 install()
+
 
 models.assert_openai_api_key()
 flags, commands, parameters = argument_parser()
@@ -34,8 +38,8 @@ config = load_config()
 messages = list()
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
-if not config.get('model') or not config['model'] in model_list or flags['change_model']:
-    config['model'] = models.choose_model(config.get('model'))
+if not config.get('model') or not config['model'] in model_list or flags['model']:
+    config['model'] = models.choose_model(flags['model'])
     save_config(config)
 model_name = config['model']
 

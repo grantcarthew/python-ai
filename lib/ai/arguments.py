@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Any, Dict, Union
 from lib.openai.prompts import get_prompt_first_match, get_prompt_match
 from rich import print as rprint
+import argparse
 import sys
 
 
@@ -41,10 +42,10 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
                         help='Does not exit after the first response')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Shows metadata (synchronous forced)')
-    parser.add_argument('-s', '--synchronous', action='store_true',
+    parser.add_argument('-m', '--model', nargs='?', const=True, default=argparse.SUPPRESS,
+                        help='Set the GPT model used')
+    parser.add_argument('--synchronous', action='store_true',
                         help='Use synchronous calls to OpenAI')
-    parser.add_argument('-c', '--change-model', action='store_true',
-                        help='Select GPT model used')
     parser.add_argument('--temperature', type=float, default=0,
                         help='Set the GPT temperature')
     parser.add_argument('--presence-penalty', type=float, default=0,
@@ -57,16 +58,22 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
                         help='Enables debug output')
 
     args = parser.parse_args()
+
+    model = False
+    if 'model' in args:
+        model = args.model
+
     flags = {
-        'change_model': args.change_model,
+        'model': model,
         'debug': args.debug,
         'interactive': args.interactive,
         'synchronous': args.synchronous,
-        'verbose': args.verbose
+        'verbose': args.verbose,
     }
     commands = {
         'config': False,
         'edit': False,
+        'export': False,
         'file': False,
         'list': False,
         'load': False,
@@ -113,6 +120,9 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         return (flags, commands, parameters)
     if command_list[0].lower() == 'load'.lower():
         commands['load'] = True
+        return (flags, commands, parameters)
+    if command_list[0].lower() == 'export'.lower():
+        commands['export'] = True
         return (flags, commands, parameters)
 
     prompt = get_prompt_match(command_list[0])

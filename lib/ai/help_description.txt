@@ -85,9 +85,10 @@ gpt-3.5-turbo      - Latest of v3.5, cost efficient.
 Once you have selected, it is saved into a config file:
 $HOME/.config/ai/config
 
-If you wish to change the model, use the 'ai -c'.
+If you wish to change the model, use the 'ai -m'. You will be
+prompted to select one of the available models.
 
-ai -c "3.5 was a stupid answer, I'll try something else"
+ai -m "What is life all about?"
 
 This will save the changes into the config file.
 

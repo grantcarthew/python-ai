@@ -4,6 +4,8 @@ from rich.color import Color
 from lib.ai.print import print_title, print_line, print_verbose_details, print_interactive_command_help
 from lib.openai import text
 from lib.definitions import AI_HISTORY_PATH
+from lib.ai import io
+from lib.ai import user_input
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
@@ -33,14 +35,32 @@ def interactive_session(model_name, messages, flags, commands, parameters):
             print_line()
         except KeyboardInterrupt:
             sys.exit(0)
-        if user_message.lower() == 'exit'.lower():
+        if user_message.lower() == 'exit':
             sys.exit(0)
-        if user_message.lower() == 'reset'.lower():
+        if user_message.lower() == 'reset':
             messages = list()
             call_api = False
             rprint(f'[cyan] Session Reset | {model_name}')
             continue
-        if user_message.lower() == 'help'.lower():
+        if user_message.lower() == 'save':
+            io.save_chat('test_name', messages)
+            rprint('Chat saved')
+            call_api = False
+            continue
+        if user_message.lower() == 'load' or user_message.lower().startswith('load '):
+            filter = None
+            if user_message.lower().startswith('load '):
+                words = user_message.lower().split()
+                if len(words) > 2:
+                    pass # TODO
+                if len(words) == 2:
+                   filter = words[1]
+            user_input.choose_saved_chat(filter)
+            messages = io.load_chat('test_name')
+            rprint('Chat loaded')
+            call_api = False
+            continue
+        if user_message.lower() == 'help':
             print_interactive_command_help()
             call_api = False
             continue
@@ -87,3 +107,4 @@ def finish_reason_check(finish_reason) -> bool:
     else:
         rprint(
             f'[red]Model output stopped for an unknown reason: {finish_reason}[/]')
+

@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from lib import cache
 from lib.definitions import AI_CACHE_PATH
+from lib.config import load_config, save_config
 from pick import pick
 from rich.console import Console
 from rich.table import Table
@@ -11,6 +12,7 @@ import rich
 import sys
 
 openai.api_key = os.environ.get('OPENAI_API_KEY', None)
+
 
 def assert_openai_api_key():
     if not openai.api_key:
@@ -55,13 +57,34 @@ def filter_models(filter: str) -> List[dict]:
     return [m for m in models if filter.lower() in m['name'].lower()]
 
 
-def choose_model(current_model: str = None) -> str:
-    models = [m['name'] for m in filter_models('gpt')]
+def get_gpt_models(filter: str = None) -> list:
+    gpt_models = [m['name'] for m in filter_models('gpt')]
+    models = gpt_models
+    if filter and type(filter) == str:
+        models = [m for m in models if filter.lower() in m.lower()]
+    if len(models) == 0:
+        return gpt_models
+    return models
+
+
+def choose_model(filter: str = None) -> str:
+    config = load_config()
+    current_model = None
+    if 'model' in config.keys():
+        current_model = config['model']
+    models = sorted(get_gpt_models(filter))
+    if len(models) == 1:
+        return models[0]
+    if type(filter) == str:
+        if filter == '4' or filter == '3' or filter == '3.5':
+            return models[0]
+
     try:
         default_index = 0
-        if current_model:
+        if current_model and current_model in models:
             default_index = models.index(current_model)
-        chosen_model = pick(models, f'Previous model: {current_model}\nChoose a model:', indicator='>', default_index=default_index)[0]
+        chosen_model = pick(
+            models, f'Previous model: {current_model}\nChoose a model:', indicator='>', default_index=default_index)[0]
     except KeyboardInterrupt:
         sys.exit(0)
     return chosen_model
@@ -79,6 +102,7 @@ def get_latest_model(filter: str) -> Optional[str]:
         return None
     return models[0]['name']
 
+
 def show_model_list():
     table = Table()
     table.add_column('[cyan]OpenAI Models[/]', style='magenta', no_wrap=True)
@@ -86,4 +110,3 @@ def show_model_list():
     for m in list_models_simple():
         table.add_row(m['name'], m['created'])
     rich.print(table)
-

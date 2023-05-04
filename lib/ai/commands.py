@@ -1,10 +1,16 @@
 import sys
 import subprocess
+import json
 from pick import pick
 from lib.openai import prompts
 from lib.openai import models
 from lib.desktop.apps import open_vscode
 from rich import print as rprint
+from lib.definitions import AI_SAVE_PATH
+from pathlib import Path
+
+
+
 
 def list(list_command: str) -> None:
     if list_command == True:
