@@ -2,6 +2,7 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 from typing import Any, Dict, Union
 from lib.openai.prompts import get_prompt_first_match, get_prompt_match
+from lib.ai import terminal
 from rich import print as rprint
 import argparse
 import sys
@@ -75,6 +76,7 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         'edit': False,
         'export': False,
         'file': False,
+        'help': False,
         'list': False,
         'load': False,
         'prompt': False,
@@ -103,8 +105,16 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
 
     if command_count < 1:
         return (flags, commands, parameters)
+    if command_list[0].lower() == 'config':
+        commands['config'] = True
     if command_list[0].lower() == 'edit':
         commands['edit'] = True
+        return (flags, commands, parameters)
+    if command_list[0].lower() == 'export':
+        commands['export'] = True
+        return (flags, commands, parameters)
+    if command_list[0].lower() == 'help':
+        terminal.print_command_help()
         return (flags, commands, parameters)
     if command_list[0].lower() == 'list':
         if command_count > 1:
@@ -112,17 +122,9 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
             return (flags, commands, parameters)
         commands['list'] = True
         return (flags, commands, parameters)
-    if command_list[0].lower() == 'config'.lower():
-        commands['config'] = True
         return (flags, commands, parameters)
-    if command_list[0].lower() == 'save'.lower():
-        commands['save'] = True
-        return (flags, commands, parameters)
-    if command_list[0].lower() == 'load'.lower():
+    if command_list[0].lower() == 'load':
         commands['load'] = True
-        return (flags, commands, parameters)
-    if command_list[0].lower() == 'export'.lower():
-        commands['export'] = True
         return (flags, commands, parameters)
 
     prompt = get_prompt_match(command_list[0])

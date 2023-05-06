@@ -1,5 +1,6 @@
 from pathlib import Path
 from lib.definitions import AI_SAVE_PATH
+from rich import print as rprint
 import json
 
 
@@ -12,7 +13,7 @@ def list_saved_chats(filter: str = None) -> list:
     for saved_chat in Path(AI_SAVE_PATH).glob('**/*.json'):
         saved_chats.append(str(saved_chat.relative_to(
             AI_SAVE_PATH)).replace('.json', ''))
-    if filter:
+    if type(filter) == str:
         saved_chats = [chat for chat in saved_chats if filter in chat]
     return sorted(saved_chats)
 

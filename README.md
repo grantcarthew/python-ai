@@ -18,7 +18,6 @@ Features:
 - Prepared [prompts](prompts). eg: `ai -p python "read a csv file"`
 - Start interactive sessions or one-time requests
 - Asynchronous or synchronous interface
-YBM61EIomRK6oLtTIPdC5xMVQUV9cDxp
 
 Here is the help from the terminal:
 

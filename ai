@@ -8,9 +8,9 @@ from rich import print as rprint
 from rich.traceback import install
 
 # Internal library
-from lib.ai import commands as ai_commands
+from lib.ai import command_handler
 from lib.ai.arguments import argument_parser
-from lib.ai.print import print_line, print_title, print_verbose_details
+from lib.ai import terminal
 from lib.ai.session import interactive_session, passive_session, finish_reason_check
 from lib.ai.user_input import initial_message
 from lib.config import save_config, load_config
@@ -30,9 +30,13 @@ if flags['debug']:
     rprint(f'parameters: {parameters}')
 
 if commands['list']:
-    ai_commands.list(commands['list'])
+    command_handler.list(commands['list'])
 if commands['edit']:
-    ai_commands.edit(commands['edit'])
+    command_handler.edit(commands['edit'])
+if commands['load']:
+    loaded_chat = command_handler.load(commands['load'])
+    rprint(loaded_chat)
+    sys.exit(0)
 
 config = load_config()
 messages = list()
@@ -43,13 +47,14 @@ if not config.get('model') or not config['model'] in model_list or flags['model'
     save_config(config)
 model_name = config['model']
 
-prompt_name, prompt = ai_commands.prompt(commands['prompt'])
+prompt_name, prompt = command_handler.prompt(commands['prompt'])
 if prompt:
     messages.append({'role': 'user', 'content': prompt})
     messages.append({'role': 'assistant', 'content': 'Understood'})
 
-file_content = ai_commands.file(commands['file'])
+file_content = command_handler.file(commands['file'])
 if file_content:
+    rprint(f'[yellow]File content loaded: {commands["file"]}[/]')
     messages.append({'role': 'user', 'content': file_content})
     messages.append({'role': 'assistant', 'content': 'How can I assist you?'})
 
@@ -62,14 +67,14 @@ if commands['query']:
 
 if flags['interactive']:
     if flags['verbose']:
-        print_verbose_details(model_name, messages, flags,
+        terminal.print_verbose_details(model_name, messages, flags,
                               commands, parameters, prompt_name, None)
     interactive_session(model_name, messages, flags, commands, parameters)
 
 if flags['debug']:
     rprint(f'messages: {messages}')
 
-print_title(model_name, to_stderr=True)
+terminal.print_title(model_name, to_stderr=True)
 
 session_data = passive_session(
     model_name, messages, flags, commands, parameters)
@@ -77,8 +82,8 @@ session_data = passive_session(
 finish_reason_check(session_data['finish_reason'])
 
 if flags['verbose']:
-    print_title(model_name)
-    print_verbose_details(model_name, messages, flags, commands,
+    terminal.print_title(model_name)
+    terminal.print_verbose_details(model_name, messages, flags, commands,
                           parameters, prompt_name, session_data['tokens'])
 
 send_to_clipboard(session_data['content'])

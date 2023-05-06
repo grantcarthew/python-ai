@@ -7,9 +7,46 @@ from lib.openai import models
 from lib.desktop.apps import open_vscode
 from rich import print as rprint
 from lib.definitions import AI_SAVE_PATH
+from lib.ai.io import list_saved_chats, load_chat, save_chat
+from lib.ai import user_input
+from lib.ai import terminal
 from pathlib import Path
+from typing import List
 
 
+def action(command_data: list[str], messages: list[dict], interactive: bool = False) -> dict:
+    rprint('action')
+    command_list = command_data.split()
+
+    result = {
+        'messages': messages,
+        'call_api': False,
+        'continue': True
+    }
+
+    if command_list[0] == 'help':
+        help(interactive)
+        return result
+
+    if command_list[0] == 'exit':
+        sys.exit(0)
+
+    if command_list[0] == 'reset':
+        result['messsages'] = list()
+        return result
+
+    if command_list[0] == 'save':
+        save(messages)
+        return result
+
+    if command_list[0] == 'load':
+        result['messages'] = load(command_data)
+        return result
+
+
+def help(interactive: bool) -> None:
+    terminal.print_command_help(interactive)
+    terminal.print_line()
 
 
 def list(list_command: str) -> None:
@@ -33,11 +70,13 @@ def edit(edit_command: str) -> None:
     open_vscode(prompts_path)
     sys.exit(0)
 
+
 def prompt(prompt_command: str) -> None:
     if prompt_command:
         if len(prompt_command) > 1:
             try:
-                prompt_name = pick(prompt_command, 'Choose a prepared prompt:', indicator='>')[0]
+                prompt_name = pick(
+                    prompt_command, 'Choose a prepared prompt:', indicator='>')[0]
             except KeyboardInterrupt:
                 sys.exit(0)
         if len(prompt_command) == 1:
@@ -52,7 +91,17 @@ def prompt(prompt_command: str) -> None:
         return (prompt_name, prompt)
     return (None, None)
 
+
 def file(file_command: str) -> None:
     if file_command:
         return file_command.read_text()
     return None
+
+
+def save(command_data: List[str], messages: List[dict]) -> None:
+    # save_chat(messages)
+    sys.exit(0)
+
+
+def load(filter):
+    return user_input.choose_saved_chat(filter)

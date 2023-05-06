@@ -56,8 +56,20 @@ def print_verbose_details(model_name, messages, flags, commands, parameters, pro
         print_line()
 
 
-def print_interactive_command_help():
+
+
+def print_command_help(interactive: bool = False):
+    if interactive:
+        rprint(f'[cyan] Type "/" to enter a command[/]')
     rprint(f'[cyan] Available commands:[/]')
-    rprint(f'[cyan]   exit[/]')
-    rprint(f'[cyan]   reset[/]')
-    rprint(f'[cyan]   help[/]')
+    rprint(f'[cyan]   config - Change command configuration[/]')
+    rprint(f'[cyan]   edit   - Edit prepared prompts[/]')
+    if interactive:
+        rprint(f'[cyan]   export - Export current chat[/]')
+    rprint(f'[cyan]   help   - Show this help[/]')
+    rprint(f'[cyan]   list   - List modules or prompts[/]')
+    rprint(f'[cyan]   load   - Load a saved chat[/]')
+    if interactive:
+        rprint(f'[cyan]   reset  - Drop memory from this chat[/]')
+        rprint(f'[cyan]   save   - Save this chat[/]')
+
