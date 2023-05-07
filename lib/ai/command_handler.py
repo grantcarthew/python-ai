@@ -13,9 +13,80 @@ from lib.ai import terminal
 from pathlib import Path
 from typing import List
 
+def get_commands(interactive: bool = False) -> List[dict]:
+    commands = [
+        {
+            'name': 'config',
+            'description': 'Change ai configuration',
+            'interactive': True,
+            'passive': True
+        },
+        {
+            'name': 'edit',
+            'description': 'Opens the prompts file in the default editor',
+            'interactive': True,
+            'passive': True
+        },
+        {
+            'name': 'export',
+            'description': 'Export the current chat',
+            'interactive': True,
+            'passive': False
+        },
+        {
+            'name': 'help',
+            'description': 'Shows this help message',
+            'interactive': True,
+            'passive': True
+        },
+        {
+            'name': 'list',
+            'description': 'Lists available resources',
+            'interactive': True,
+            'passive': True
+        },
+        {
+            'name': 'load',
+            'description': 'Load a saved chat',
+            'interactive': True,
+            'passive': False
+        },
+        {
+            'name': 'model',
+            'description': 'Change the GPT model being used',
+            'interactive': True,
+            'passive': True
+        },
+        {
+            'name': 'prompt',
+            'description': 'Opens the prompts file in the default editor',
+            'interactive': True,
+            'passive': False
+        },
+        {
+            'name': 'reset',
+            'description': 'Resets the session',
+            'interactive': True,
+            'passive': False
+        },
+        {
+            'name': 'save',
+            'description': 'Saves the session',
+            'interactive': True,
+            'passive': False
+        },
+        {
+            'name': 'show',
+            'description': 'Shows the current chat',
+            'interactive': True,
+            'passive': False
+        }
+    ]
+    if interactive:
+        return [command for command in commands if command['interactive']]
+    return [command for command in commands if command['passive']]
 
-def action(command_data: list[str], messages: list[dict], interactive: bool = False) -> dict:
-    rprint('action')
+def action(command_data: list[str], model_name: str, messages: list[dict], interactive: bool = False) -> dict:
     command_list = command_data.split()
 
     result = {
@@ -28,11 +99,17 @@ def action(command_data: list[str], messages: list[dict], interactive: bool = Fa
         help(interactive)
         return result
 
+    if command_list[0] == 'show':
+        terminal.print_messages(messages)
+        return result
+
     if command_list[0] == 'exit':
         sys.exit(0)
 
     if command_list[0] == 'reset':
-        result['messsages'] = list()
+        result['messages'] = list()
+        rprint(f'[cyan]Session Reset | {model_name}[/]')
+        terminal.print_line()
         return result
 
     if command_list[0] == 'save':
@@ -45,11 +122,11 @@ def action(command_data: list[str], messages: list[dict], interactive: bool = Fa
 
 
 def help(interactive: bool) -> None:
-    terminal.print_command_help(interactive)
-    terminal.print_line()
+    command_list = get_commands(interactive=interactive)
+    terminal.print_command_help(command_list=command_list, interactive=interactive)
 
 
-def list(list_command: str) -> None:
+def list_command(list_command: str) -> None:
     if list_command == True:
         try:
             list_command = pick(
@@ -99,9 +176,24 @@ def file(file_command: str) -> None:
 
 
 def save(command_data: List[str], messages: List[dict]) -> None:
-    # save_chat(messages)
+            # io.save_chat('test_name', messages)
+            # rprint('Chat saved')
+            # call_api = False
+            # continue
     sys.exit(0)
 
 
 def load(filter):
+            # filter = None
+            # if user_message.lower().startswith('load '):
+            #     words = user_message.lower().split()
+            #     if len(words) > 2:
+            #         pass # TODO
+            #     if len(words) == 2:
+            #        filter = words[1]
+            # user_input.choose_saved_chat(filter)
+            # messages = io.load_chat('test_name')
+            # rprint('Chat loaded')
+            # call_api = False
+            # continue
     return user_input.choose_saved_chat(filter)

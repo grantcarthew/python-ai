@@ -2,6 +2,7 @@ from rich.console import Console
 from rich.rule import Rule
 from rich import print as rprint
 import sys
+from typing import List
 
 console = Console()
 console_stderr = Console(file=sys.stderr)
@@ -24,7 +25,7 @@ def print_title(model_name, to_stderr: bool = False):
     print_line(to_stderr)
 
 
-def print_verbose_details(model_name, messages, flags, commands, parameters, prompt_name, tokens):
+def print_verbose(model_name, messages, flags, commands, parameters, prompt_name, tokens):
     rprint('[bold yellow]Session Details[/]')
     print_line()
     rprint('Command line arguments:')
@@ -50,26 +51,25 @@ def print_verbose_details(model_name, messages, flags, commands, parameters, pro
     print_line()
     rprint('[yellow]Messages[/]')
     print_line()
-    for part in messages:
-        rprint(f'[magenta]Role: {part["role"]}[/]')
-        rprint(f'[cyan]{part["content"]}[/]')
-        print_line()
+    print_messages(messages)
 
 
 
 
-def print_command_help(interactive: bool = False):
+def print_command_help(command_list: List[dict], interactive: bool = False) -> None:
     if interactive:
         rprint(f'[cyan] Type "/" to enter a command[/]')
     rprint(f'[cyan] Available commands:[/]')
-    rprint(f'[cyan]   config - Change command configuration[/]')
-    rprint(f'[cyan]   edit   - Edit prepared prompts[/]')
-    if interactive:
-        rprint(f'[cyan]   export - Export current chat[/]')
-    rprint(f'[cyan]   help   - Show this help[/]')
-    rprint(f'[cyan]   list   - List modules or prompts[/]')
-    rprint(f'[cyan]   load   - Load a saved chat[/]')
-    if interactive:
-        rprint(f'[cyan]   reset  - Drop memory from this chat[/]')
-        rprint(f'[cyan]   save   - Save this chat[/]')
+    for command in command_list:
+        rprint(f'[cyan]   {command["name"]} - {command["description"]}[/]')
 
+def print_messages(messages: List[dict]):
+    if len(messages) == 0:
+        rprint(f'[magenta]No chat messages to display[/]')
+    for part in messages:
+        rprint(f'[magenta]  Role: {part["role"]}[/]')
+        if part['role'] == 'user':
+            rprint(f'[cyan]    {part["content"]}[/]')
+        else:
+            rprint(f'[white]    {part["content"]}[/]')
+    print_line()

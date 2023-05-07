@@ -10,33 +10,37 @@ from lib.ai import command_handler
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
-
-session = PromptSession(history=FileHistory(AI_HISTORY_PATH))
+from prompt_toolkit.completion import WordCompleter
 
 
 def interactive_session(model_name, messages, flags, commands, parameters):
     terminal.print_title(model_name)
-    terminal.print_command_help(interactive=True)
+    command_handler.help(interactive=True)
     terminal.print_line()
-    true_color = Color.parse('cyan').get_truecolor()
-    hex_color = f'#{true_color[0]:02x}{true_color[1]:02x}{true_color[2]:02x}'
-    style = Style.from_dict({'': hex_color})
     call_api = True
     while True:
         if flags['debug']:
             rprint(f'messages: {messages}')
             rprint(f'call_api: {call_api}')
-        if len(messages) > 0  and messages[-1]['role'] == 'user' and call_api:
+        if len(messages) > 0 and messages[-1]['role'] == 'user' and call_api:
             response = text.call_gpt_async(model_name, messages, parameters)
             messages.append(
                 {'role': 'assistant', 'content': response['content']})
             terminal.print_line()
         call_api = True
         try:
-            user_message = session.prompt('> ', style=style)
+            command_items = command_handler.get_commands(interactive=True)
+            command_names = [f'/{c["name"]}' for c in command_items]
+            command_completer = WordCompleter(command_names, ignore_case=True)
+            user_message = user_input.interactive_prompt(command_completer)
             terminal.print_line()
         except KeyboardInterrupt:
             sys.exit(0)
+
+        # No message entered, user just hit ENTER
+        if not user_message:
+            call_api = False
+            continue
 
         # Alternate options for displaying the command help
         # A single ? or / or the word help
@@ -48,41 +52,15 @@ def interactive_session(model_name, messages, flags, commands, parameters):
 
         # A forward slash indicates a command rather than a message
         if user_message.lower().startswith('/'):
-            result = command_handler.action(command_data=user_message[1:], messages=messages, interactive=True)
+            result = command_handler.action(
+                command_data=user_message[1:], model_name=model_name, messages=messages, interactive=True)
             messages = result['messages']
             call_api = result['call_api']
             if result['continue']:
                 continue
 
-        if user_message.lower() == 'reset':
-            messages = list()
-            call_api = False
-            rprint(f'[cyan] Session Reset | {model_name}')
-            continue
-        if user_message.lower() == 'save':
-            io.save_chat('test_name', messages)
-            rprint('Chat saved')
-            call_api = False
-            continue
-        if user_message.lower() == 'load' or user_message.lower().startswith('load '):
-            filter = None
-            if user_message.lower().startswith('load '):
-                words = user_message.lower().split()
-                if len(words) > 2:
-                    pass # TODO
-                if len(words) == 2:
-                   filter = words[1]
-            user_input.choose_saved_chat(filter)
-            messages = io.load_chat('test_name')
-            rprint('Chat loaded')
-            call_api = False
-            continue
-        if user_message.lower() == 'help':
-            terminal.print_command_help(interactive=True)
-            terminal.print_line()
-            call_api = False
-            continue
         messages.append({'role': 'user', 'content': user_message})
+
 
 def passive_session(model_name, messages, flags, commands, parameters) -> dict:
     session_data = {
@@ -112,6 +90,7 @@ def passive_session(model_name, messages, flags, commands, parameters) -> dict:
         rprint(session_data)
     return session_data
 
+
 def finish_reason_check(finish_reason) -> bool:
     if finish_reason == 'stop':
         return True
@@ -121,8 +100,8 @@ def finish_reason_check(finish_reason) -> bool:
         'null': 'API response still in progress or incomplete'
     }
     if finish_reason in known_reasons.keys():
-        rprint(f'[red]Finish Reason: {finish_reason} | {known_reasons[finish_reason]}[/]')
+        rprint(
+            f'[red]Finish Reason: {finish_reason} | {known_reasons[finish_reason]}[/]')
     else:
         rprint(
             f'[red]Model output stopped for an unknown reason: {finish_reason}[/]')
-

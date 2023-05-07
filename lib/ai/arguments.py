@@ -2,7 +2,6 @@ from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from pathlib import Path
 from typing import Any, Dict, Union
 from lib.openai.prompts import get_prompt_first_match, get_prompt_match
-from lib.ai import terminal
 from rich import print as rprint
 import argparse
 import sys
@@ -114,7 +113,7 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
         commands['export'] = True
         return (flags, commands, parameters)
     if command_list[0].lower() == 'help':
-        terminal.print_command_help()
+        commands['help'] = True
         return (flags, commands, parameters)
     if command_list[0].lower() == 'list':
         if command_count > 1:

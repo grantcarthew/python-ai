@@ -22,6 +22,8 @@ install()
 
 
 models.assert_openai_api_key()
+config = load_config()
+messages = list()
 flags, commands, parameters = argument_parser()
 
 if flags['debug']:
@@ -29,6 +31,11 @@ if flags['debug']:
     rprint(f'commands: {commands}')
     rprint(f'parameters: {parameters}')
 
+if commands['help']:
+    terminal.print_title(config['model'])
+    command_handler.help(interactive=flags['interactive'])
+    terminal.print_line()
+    sys.exit(0)
 if commands['list']:
     command_handler.list(commands['list'])
 if commands['edit']:
@@ -38,8 +45,6 @@ if commands['load']:
     rprint(loaded_chat)
     sys.exit(0)
 
-config = load_config()
-messages = list()
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
 if not config.get('model') or not config['model'] in model_list or flags['model']:
@@ -67,7 +72,7 @@ if commands['query']:
 
 if flags['interactive']:
     if flags['verbose']:
-        terminal.print_verbose_details(model_name, messages, flags,
+        terminal.print_verbose(model_name, messages, flags,
                               commands, parameters, prompt_name, None)
     interactive_session(model_name, messages, flags, commands, parameters)
 
@@ -83,7 +88,7 @@ finish_reason_check(session_data['finish_reason'])
 
 if flags['verbose']:
     terminal.print_title(model_name)
-    terminal.print_verbose_details(model_name, messages, flags, commands,
+    terminal.print_verbose(model_name, messages, flags, commands,
                           parameters, prompt_name, session_data['tokens'])
 
 send_to_clipboard(session_data['content'])
