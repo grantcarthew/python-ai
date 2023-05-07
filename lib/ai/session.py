@@ -38,10 +38,16 @@ def interactive_session(model_name, messages, flags, commands, parameters):
         except KeyboardInterrupt:
             sys.exit(0)
 
+        # Alternate options for displaying the command help
+        # A single ? or / or the word help
+        if len(user_message) == 1:
+            if user_message.startswith('?') or user_message.startswith('/'):
+                user_message = '/help'
+        if user_message == 'help':
+            user_message = '/help'
+
         # A forward slash indicates a command rather than a message
         if user_message.lower().startswith('/'):
-            if len(user_message) == 1:
-                user_message = '/help'
             result = command_handler.action(command_data=user_message[1:], messages=messages, interactive=True)
             messages = result['messages']
             call_api = result['call_api']
