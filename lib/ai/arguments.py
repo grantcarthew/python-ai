@@ -112,7 +112,10 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
     if command_list[0].lower() == 'export':
         commands['export'] = True
         return (flags, commands, parameters)
-    if command_list[0].lower() == 'help':
+    if command_list[0].lower() == 'help' or \
+       command_list[0].lower() == '/help' or \
+       command_list[0].lower() == '?' or \
+       command_list[0].lower() == '/?':
         commands['help'] = True
         return (flags, commands, parameters)
     if command_list[0].lower() == 'list':

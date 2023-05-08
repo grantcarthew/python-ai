@@ -97,6 +97,7 @@ def action(command_data: list[str], model_name: str, messages: list[dict], inter
 
     if command_list[0] == 'help':
         help(interactive)
+        terminal.print_line()
         return result
 
     if command_list[0] == 'show':
