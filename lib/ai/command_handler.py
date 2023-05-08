@@ -18,66 +18,77 @@ def get_commands(interactive: bool = False) -> List[dict]:
         {
             'name': 'config',
             'description': 'Change ai configuration',
+            'option_help': '',
             'interactive': True,
             'passive': True
         },
         {
             'name': 'edit',
             'description': 'Opens the prompts file in the default editor',
+            'option_help': '',
             'interactive': True,
             'passive': True
         },
         {
             'name': 'export',
             'description': 'Export the current chat',
+            'option_help': '\[file-path-and-name\] \[file-type\]',
             'interactive': True,
             'passive': False
         },
         {
             'name': 'help',
             'description': 'Shows this help message',
+            'option_help': '',
             'interactive': True,
             'passive': True
         },
         {
             'name': 'list',
             'description': 'Lists available resources',
+            'option_help': '\[prompts-or-modules\]',
             'interactive': True,
             'passive': True
         },
         {
             'name': 'load',
             'description': 'Load a saved chat',
+            'option_help': '\[session-name-or-part-there-of\]',
             'interactive': True,
             'passive': False
         },
         {
             'name': 'model',
             'description': 'Change the GPT model being used',
+            'option_help': '\[model-name-or-part-there-of\]',
             'interactive': True,
             'passive': True
         },
         {
             'name': 'prompt',
             'description': 'Opens the prompts file in the default editor',
+            'option_help': '\[prompt-name-or-part-there-of\]',
             'interactive': True,
             'passive': False
         },
         {
             'name': 'reset',
             'description': 'Resets the session',
+            'option_help': '',
             'interactive': True,
             'passive': False
         },
         {
             'name': 'save',
             'description': 'Saves the session',
+            'option_help': '\[session-name\]',
             'interactive': True,
             'passive': False
         },
         {
             'name': 'show',
             'description': 'Shows the current chat',
+            'option_help': '',
             'interactive': True,
             'passive': False
         }

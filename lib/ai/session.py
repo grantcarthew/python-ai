@@ -42,13 +42,16 @@ def interactive_session(model_name, messages, flags, commands, parameters):
             call_api = False
             continue
 
-        # Alternate options for displaying the command help
+        # Alternate options for commands
         # A single ? or / or the word help
         if len(user_message) == 1:
             if user_message.startswith('?') or user_message.startswith('/'):
                 user_message = '/help'
         if user_message == 'help':
             user_message = '/help'
+        # VIM quit
+        if user_message == ':q':
+            user_message = '/exit'
 
         # A forward slash indicates a command rather than a message
         if user_message.lower().startswith('/'):

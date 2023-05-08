@@ -61,7 +61,7 @@ def print_command_help(command_list: List[dict], interactive: bool = False) -> N
         rprint(f'[cyan] Type "/" to enter a command[/]')
     rprint(f'[cyan] Available commands:[/]')
     for command in command_list:
-        rprint(f'[cyan]   {command["name"]} - {command["description"]}[/]')
+        rprint(f'[cyan]\t{command["name"]}\t{(command["option_help"])}\t{command["description"]}[/]')
 
 def print_messages(messages: List[dict]):
     if len(messages) == 0:
