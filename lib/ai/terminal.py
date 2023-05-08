@@ -3,6 +3,9 @@ from rich.rule import Rule
 from rich import print as rprint
 import sys
 from typing import List
+from rich import print
+from rich.table import Table
+
 
 console = Console()
 console_stderr = Console(file=sys.stderr)
@@ -57,11 +60,19 @@ def print_verbose(model_name, messages, flags, commands, parameters, prompt_name
 
 
 def print_command_help(command_list: List[dict], interactive: bool = False) -> None:
+    title='Available Commands'
     if interactive:
-        rprint(f'[cyan] Type "/" to enter a command[/]')
-    rprint(f'[cyan] Available commands:[/]')
+        title += " (type '/' to enter commands)"
+
+    table = Table(title=title)
+
+    table.add_column('Command', justify='left', style='cyan', no_wrap=True)
+    # table.add_column('Options', justify='right', style='magenta')
+    table.add_column('Description', justify='left', style='green')
     for command in command_list:
-        rprint(f'[cyan]\t{command["name"]}\t{(command["option_help"])}\t{command["description"]}[/]')
+        table.add_row(f'{command["name"]} {command["option_help"]}', command['description'])
+    print(table)
+
 
 def print_messages(messages: List[dict]):
     if len(messages) == 0:

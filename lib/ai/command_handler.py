@@ -31,8 +31,8 @@ def get_commands(interactive: bool = False) -> List[dict]:
         },
         {
             'name': 'export',
-            'description': 'Export the current chat',
-            'option_help': '\[file-path-and-name\] \[file-type\]',
+            'description': 'Export the current chat (md, pdf, txt)',
+            'option_help': '\[file-path] \[file-type]',
             'interactive': True,
             'passive': False
         },
@@ -46,28 +46,28 @@ def get_commands(interactive: bool = False) -> List[dict]:
         {
             'name': 'list',
             'description': 'Lists available resources',
-            'option_help': '\[prompts-or-modules\]',
+            'option_help': '\[prompts] or \[modules]',
             'interactive': True,
             'passive': True
         },
         {
             'name': 'load',
             'description': 'Load a saved chat',
-            'option_help': '\[session-name-or-part-there-of\]',
+            'option_help': '\[session-name]',
             'interactive': True,
             'passive': False
         },
         {
             'name': 'model',
             'description': 'Change the GPT model being used',
-            'option_help': '\[model-name-or-part-there-of\]',
+            'option_help': '\[model-name]',
             'interactive': True,
             'passive': True
         },
         {
             'name': 'prompt',
             'description': 'Opens the prompts file in the default editor',
-            'option_help': '\[prompt-name-or-part-there-of\]',
+            'option_help': '\[prompt-name]',
             'interactive': True,
             'passive': False
         },
@@ -81,7 +81,7 @@ def get_commands(interactive: bool = False) -> List[dict]:
         {
             'name': 'save',
             'description': 'Saves the session',
-            'option_help': '\[session-name\]',
+            'option_help': '\[session-name]',
             'interactive': True,
             'passive': False
         },
