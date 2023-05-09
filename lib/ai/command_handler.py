@@ -7,7 +7,7 @@ from lib.openai import models
 from lib.desktop.apps import open_vscode
 from rich import print as rprint
 from lib.definitions import AI_SAVE_PATH
-from lib.ai.io import list_saved_chats, load_chat, save_chat
+from lib.ai import io
 from lib.ai import user_input
 from lib.ai import terminal
 from lib.ai import messages
@@ -132,7 +132,7 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
         return result
 
     if command_list[0] == 'save':
-        save()
+        save_chat()
         return result
 
     if command_list[0] == 'load':
@@ -172,7 +172,7 @@ def list_command(list_command: str) -> None:
     sys.exit(0)
 
 
-def edit(edit_command: str) -> None:
+def edit_prompts(edit_command: str) -> None:
     prompts_path = prompts.get_prompts_path()
     rprint('[cyan]Opening prepared prompts for editing[/]')
     rprint(f'[cyan]Path: "{prompts_path}"[/]')
@@ -180,7 +180,7 @@ def edit(edit_command: str) -> None:
     sys.exit(0)
 
 
-def prompt(prompt_command: str) -> None:
+def get_prompt(prompt_command: str) -> None:
     if prompt_command:
         if len(prompt_command) > 1:
             try:
@@ -201,13 +201,11 @@ def prompt(prompt_command: str) -> None:
     return (None, None)
 
 
-def file(file_command: str) -> None:
-    if file_command:
-        return file_command.read_text()
-    return None
+def file_content(file_path: str) -> None:
+    return io.get_file_content(file_path)
 
 
-def save(command_data: List[str]) -> None:
+def save_chat(command_data: List[str]) -> None:
             # io.save_chat('test_name', messages)
             # rprint('Chat saved')
             # call_api = False
@@ -215,9 +213,9 @@ def save(command_data: List[str]) -> None:
     sys.exit(0)
 
 
-def load(filter):
+def load_chat(filter):
     file_path = user_input.get_file_path()
-    file_content = Path(file_path).read_text()
+    file_content = io.get_file_content(file_path)
     messages.add_user_content(file_content)
             # filter = None
             # if user_message.lower().startswith('load '):
@@ -241,6 +239,6 @@ def import_file(command_list: str = None) -> str:
             return False
     else:
         file_path = command_list[0]
-    file_content = Path(file_path).read_text()
+    file_content = io.get_file_content(file_path)
     messages.add_user_content(file_content)
     return True

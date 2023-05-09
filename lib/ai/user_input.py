@@ -73,7 +73,10 @@ def get_file_path() -> str:
 
 
 def launch_file_browser() -> str:
-    root = tk.Tk()
-    root.withdraw()  # Hide the root window
-    file_path = filedialog.askopenfilename()
-    return file_path
+    try:
+        root = tk.Tk()
+        root.withdraw()  # Hide the root window
+        file_path = filedialog.askopenfilename()
+        return file_path
+    except:
+        return get_file_path()

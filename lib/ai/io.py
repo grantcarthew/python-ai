@@ -3,6 +3,7 @@ from lib.definitions import AI_SAVE_PATH
 from lib.ai import messages
 from rich import print as rprint
 import json
+import sys
 
 
 def get_saved_chats_path():
@@ -29,3 +30,14 @@ def load_chat(file_name):
     load_path = Path(AI_SAVE_PATH) / f'{file_name}.json'
     with open(load_path, 'r') as f:
         return json.load(f)
+
+def get_file_content(file_path):
+    if not file_path:
+        return False
+    try:
+        if Path.is_file(file_path):
+            return Path(file_path).resolve().read_text()
+        rprint(f'[red]Error: Invalid file path: {file_path}[/]')
+    except Exception as err:
+        rprint(f'Error: {err}')
+        sys.exit(0)

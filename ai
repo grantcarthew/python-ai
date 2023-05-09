@@ -39,7 +39,7 @@ if commands['help']:
 if commands['list']:
     command_handler.list(commands['list'])
 if commands['edit']:
-    command_handler.edit(commands['edit'])
+    command_handler.edit_prompts(commands['edit'])
 if commands['load']:
     loaded_chat = command_handler.load(commands['load'])
     rprint(loaded_chat)
@@ -52,12 +52,12 @@ if not config.get('model') or not config['model'] in model_list or flags['model'
     save_config(config)
 model_name = config['model']
 
-prompt_name, prompt = command_handler.prompt(commands['prompt'])
+prompt_name, prompt = command_handler.get_prompt(commands['prompt'])
 if prompt:
     messages.add_user_content(prompt)
     messages.add_assistant_content('Understood')
 
-file_content = command_handler.file(commands['file'])
+file_content = command_handler.file_content(commands['file'])
 if file_content:
     rprint(f'[yellow]File content loaded: {commands["file"]}[/]')
     messages.add_user_content(file_content)
