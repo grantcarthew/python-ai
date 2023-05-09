@@ -2,8 +2,6 @@
 
 # Third party libraries
 import sys
-from lib.ai.user_input import choose_saved_chat
-from lib.ai import io
 from rich import print as rprint
 from rich.traceback import install
 
@@ -13,6 +11,9 @@ from lib.ai.arguments import argument_parser
 from lib.ai import terminal
 from lib.ai.session import interactive_session, passive_session, finish_reason_check
 from lib.ai.user_input import initial_message
+from lib.ai.user_input import choose_saved_chat
+from lib.ai import io
+from lib.ai import messages
 from lib.config import save_config, load_config
 from lib.desktop.clipboard import send_to_clipboard
 from lib.openai import models
@@ -23,7 +24,6 @@ install()
 
 models.assert_openai_api_key()
 config = load_config()
-messages = list()
 flags, commands, parameters = argument_parser()
 
 if flags['debug']:
@@ -54,41 +54,41 @@ model_name = config['model']
 
 prompt_name, prompt = command_handler.prompt(commands['prompt'])
 if prompt:
-    messages.append({'role': 'user', 'content': prompt})
-    messages.append({'role': 'assistant', 'content': 'Understood'})
+    messages.add_user_content(prompt)
+    messages.add_assistant_content('Understood')
 
 file_content = command_handler.file(commands['file'])
 if file_content:
     rprint(f'[yellow]File content loaded: {commands["file"]}[/]')
-    messages.append({'role': 'user', 'content': file_content})
-    messages.append({'role': 'assistant', 'content': 'How can I assist you?'})
+    messages.add_user_content(file_content)
+    messages.add_assistant_content('How can I assist you?')
 
 if not commands['query'] and not flags['interactive']:
     while not commands['query']:
         commands['query'] = initial_message()
 
 if commands['query']:
-    messages.append({'role': 'user', 'content': commands['query']})
+    messages.add_user_content(commands['query'])
 
 if flags['interactive']:
     if flags['verbose']:
-        terminal.print_verbose(model_name, messages, flags,
+        terminal.print_verbose(model_name, flags,
                               commands, parameters, prompt_name, None)
-    interactive_session(model_name, messages, flags, commands, parameters)
+    interactive_session(model_name, flags, commands, parameters)
 
 if flags['debug']:
-    rprint(f'messages: {messages}')
+    rprint(f'messages: {messages.chat}')
 
 terminal.print_title(model_name, to_stderr=True)
 
 session_data = passive_session(
-    model_name, messages, flags, commands, parameters)
+    model_name, flags, commands, parameters)
 
 finish_reason_check(session_data['finish_reason'])
 
 if flags['verbose']:
     terminal.print_title(model_name)
-    terminal.print_verbose(model_name, messages, flags, commands,
+    terminal.print_verbose(model_name, flags, commands,
                           parameters, prompt_name, session_data['tokens'])
 
 send_to_clipboard(session_data['content'])

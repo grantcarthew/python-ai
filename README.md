@@ -140,6 +140,12 @@ To install these modules, use the following command in the terminal:
 python -m pip install argparse openai pick prompt_toolkit rich
 ```
 
+You'll also need to make sure you have 'tk' installed:
+
+```bash
+sudo pacman -S tk
+```
+
 If you would prefer, there is a [pyproject.toml](pyproject.toml) file for a [Poetry](https://python-poetry.org/) installation.
 
 ### Step 3 - Clone Repository

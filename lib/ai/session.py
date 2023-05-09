@@ -7,25 +7,25 @@ from lib.definitions import AI_HISTORY_PATH
 from lib.ai import io
 from lib.ai import user_input
 from lib.ai import command_handler
+from lib.ai import messages
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
 from prompt_toolkit.completion import WordCompleter
 
 
-def interactive_session(model_name, messages, flags, commands, parameters):
+def interactive_session(model_name, flags, commands, parameters):
     terminal.print_title(model_name)
     command_handler.help(interactive=True)
     terminal.print_line()
     call_api = True
     while True:
         if flags['debug']:
-            rprint(f'messages: {messages}')
+            rprint(f'messages: {messages.chat}')
             rprint(f'call_api: {call_api}')
-        if len(messages) > 0 and messages[-1]['role'] == 'user' and call_api:
-            response = text.call_gpt_async(model_name, messages, parameters)
-            messages.append(
-                {'role': 'assistant', 'content': response['content']})
+        if len(messages.chat) > 0 and messages.chat[-1]['role'] == 'user' and call_api:
+            response = text.call_gpt_async(model_name, messages.chat, parameters)
+            messages.add_assistant_content(response['content'])
             terminal.print_line()
         call_api = True
         try:
@@ -56,16 +56,14 @@ def interactive_session(model_name, messages, flags, commands, parameters):
         # A forward slash indicates a command rather than a message
         if user_message.lower().startswith('/'):
             result = command_handler.action(
-                command_data=user_message[1:], model_name=model_name, messages=messages, interactive=True)
-            messages = result['messages']
+                command_data=user_message[1:], model_name=model_name, interactive=True)
             call_api = result['call_api']
             if result['continue']:
                 continue
+        messages.add_user_content(user_message)
 
-        messages.append({'role': 'user', 'content': user_message})
 
-
-def passive_session(model_name, messages, flags, commands, parameters) -> dict:
+def passive_session(model_name, flags, commands, parameters) -> dict:
     session_data = {
         'finish_reason': None,
         'content': None,
@@ -77,14 +75,14 @@ def passive_session(model_name, messages, flags, commands, parameters) -> dict:
     }
 
     if flags['synchronous'] or flags['verbose']:
-        response = text.call_gpt_sync(model_name, messages, parameters)
+        response = text.call_gpt_sync(model_name, messages.chat, parameters)
         session_data['finish_reason'] = response['choices'][0]['finish_reason']
         session_data['tokens']['prompt'] = response['usage']['prompt_tokens']
         session_data['tokens']['completion'] = response['usage']['completion_tokens']
         session_data['tokens']['total'] = response['usage']['total_tokens']
         session_data['content'] = response['choices'][0]['message']['content']
     else:
-        response = text.call_gpt_async(model_name, messages, parameters)
+        response = text.call_gpt_async(model_name, messages.chat, parameters)
         session_data['finish_reason'] = response['finish_reason']
         session_data['content'] = response['content']
 

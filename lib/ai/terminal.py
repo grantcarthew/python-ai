@@ -5,6 +5,7 @@ import sys
 from typing import List
 from rich import print
 from rich.table import Table
+from lib.ai import messages
 
 
 console = Console()
@@ -28,7 +29,7 @@ def print_title(model_name, to_stderr: bool = False):
     print_line(to_stderr)
 
 
-def print_verbose(model_name, messages, flags, commands, parameters, prompt_name, tokens):
+def print_verbose(model_name, flags, commands, parameters, prompt_name, tokens):
     rprint('[bold yellow]Session Details[/]')
     print_line()
     rprint('Command line arguments:')
@@ -54,7 +55,7 @@ def print_verbose(model_name, messages, flags, commands, parameters, prompt_name
     print_line()
     rprint('[yellow]Messages[/]')
     print_line()
-    print_messages(messages)
+    print_messages()
 
 
 
@@ -74,10 +75,10 @@ def print_command_help(command_list: List[dict], interactive: bool = False) -> N
     print(table)
 
 
-def print_messages(messages: List[dict]):
-    if len(messages) == 0:
+def print_messages():
+    if len(messages.chat) == 0:
         rprint(f'[magenta]No chat messages to display[/]')
-    for part in messages:
+    for part in messages.chat:
         rprint(f'[magenta]  Role: {part["role"]}[/]')
         if part['role'] == 'user':
             rprint(f'[cyan]    {part["content"]}[/]')

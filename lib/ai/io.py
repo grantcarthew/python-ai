@@ -1,5 +1,6 @@
 from pathlib import Path
 from lib.definitions import AI_SAVE_PATH
+from lib.ai import messages
 from rich import print as rprint
 import json
 
@@ -18,10 +19,10 @@ def list_saved_chats(filter: str = None) -> list:
     return sorted(saved_chats)
 
 
-def save_chat(file_name, messages):
+def save_chat(file_name):
     save_path = Path(AI_SAVE_PATH) / f'{file_name}.json'
     with open(save_path, 'w') as f:
-        json.dump(messages, f, indent=4)
+        json.dump(messages.chat, f, indent=4)
 
 
 def load_chat(file_name):

@@ -10,6 +10,7 @@ from lib.definitions import AI_SAVE_PATH
 from lib.ai.io import list_saved_chats, load_chat, save_chat
 from lib.ai import user_input
 from lib.ai import terminal
+from lib.ai import messages
 from pathlib import Path
 from typing import List
 
@@ -28,6 +29,13 @@ def get_commands(interactive: bool = False) -> List[dict]:
             'option_help': '',
             'interactive': True,
             'passive': True
+        },
+        {
+            'name': 'import',
+            'description': 'Import the contents of a file into the chat',
+            'option_help': '\[file-path]',
+            'interactive': True,
+            'passive': False
         },
         {
             'name': 'export',
@@ -97,11 +105,10 @@ def get_commands(interactive: bool = False) -> List[dict]:
         return [command for command in commands if command['interactive']]
     return [command for command in commands if command['passive']]
 
-def action(command_data: list[str], model_name: str, messages: list[dict], interactive: bool = False) -> dict:
+def action(command_data: list[str], model_name: str, interactive: bool = False) -> dict:
     command_list = command_data.split()
 
     result = {
-        'messages': messages,
         'call_api': False,
         'continue': True
     }
@@ -112,25 +119,38 @@ def action(command_data: list[str], model_name: str, messages: list[dict], inter
         return result
 
     if command_list[0] == 'show':
-        terminal.print_messages(messages)
+        terminal.print_messages()
         return result
 
     if command_list[0] == 'exit':
         sys.exit(0)
 
     if command_list[0] == 'reset':
-        result['messages'] = list()
+        messages.reset_chat()
         rprint(f'[cyan]Session Reset | {model_name}[/]')
         terminal.print_line()
         return result
 
     if command_list[0] == 'save':
-        save(messages)
+        save()
         return result
 
     if command_list[0] == 'load':
-        result['messages'] = load(command_data)
         return result
+
+    if command_list[0] == 'import':
+        file_imported = import_file(command_list[1:])
+        if file_imported:
+            result['call_api'] = True
+            return result
+        return result
+
+    if command_list[0] == 'export':
+        return result
+
+    result['call_api'] = True
+    result['continue'] = False
+    return result
 
 
 def help(interactive: bool) -> None:
@@ -187,7 +207,7 @@ def file(file_command: str) -> None:
     return None
 
 
-def save(command_data: List[str], messages: List[dict]) -> None:
+def save(command_data: List[str]) -> None:
             # io.save_chat('test_name', messages)
             # rprint('Chat saved')
             # call_api = False
@@ -196,6 +216,9 @@ def save(command_data: List[str], messages: List[dict]) -> None:
 
 
 def load(filter):
+    file_path = user_input.get_file_path()
+    file_content = Path(file_path).read_text()
+    messages.add_user_content(file_content)
             # filter = None
             # if user_message.lower().startswith('load '):
             #     words = user_message.lower().split()
@@ -209,3 +232,15 @@ def load(filter):
             # call_api = False
             # continue
     return user_input.choose_saved_chat(filter)
+
+def import_file(command_list: str = None) -> str:
+    if len(command_list) < 1:
+        file_path = user_input.launch_file_browser()
+        rprint(type(file_path))
+        if not isinstance(file_path, str):
+            return False
+    else:
+        file_path = command_list[0]
+    file_content = Path(file_path).read_text()
+    messages.add_user_content(file_content)
+    return True

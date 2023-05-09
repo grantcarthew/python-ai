@@ -9,6 +9,8 @@ from prompt_toolkit.styles import Style
 from pick import pick
 import sys
 from rich.color import Color
+import tkinter as tk
+from tkinter import filedialog
 
 true_color = Color.parse('cyan').get_truecolor()
 hex_color = f'#{true_color[0]:02x}{true_color[1]:02x}{true_color[2]:02x}'
@@ -19,7 +21,7 @@ session = PromptSession(
     history=FileHistory(AI_HISTORY_PATH),
     style=style,
     complete_while_typing=True,
-    mouse_support=True,
+    mouse_support=False,
     auto_suggest=AutoSuggestFromHistory()
 )
 
@@ -36,7 +38,7 @@ def initial_message():
         rprint('[cyan]Multiline input enabled[/]')
         terminal.print_line()
         bottom_toolbar = 'ESCAPE then ENTER to submit | CTRL + SHIFT + V to paste'
-        return session.prompt(multiline=True, bottom_toolbar=bottom_toolbar)
+        return session.prompt(multiline=True, mouse_support=True, bottom_toolbar=bottom_toolbar)
     except KeyboardInterrupt:
         sys.exit(0)
 
@@ -58,6 +60,20 @@ def saved_chat_file_name():
         terminal.print_line()
         rprint('[cyan]Type a file name for saving this chat:[/]')
         terminal.print_line()
-        return session.prompt('> ', mouse_support=True, auto_suggest=AutoSuggestFromHistory())
+        return session.prompt()
     except KeyboardInterrupt:
         sys.exit(0)
+
+def get_file_path() -> str:
+    rprint(f'Type in the file path:')
+    try:
+        return session.prompt()
+    except KeyboardInterrupt:
+        sys.exit(0)
+
+
+def launch_file_browser() -> str:
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+    file_path = filedialog.askopenfilename()
+    return file_path
