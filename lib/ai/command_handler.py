@@ -108,19 +108,14 @@ def get_commands(interactive: bool = False) -> List[dict]:
 def action(command_data: list[str], model_name: str, interactive: bool = False) -> dict:
     command_list = command_data.split()
 
-    result = {
-        'call_api': False,
-        'continue': True
-    }
-
     if command_list[0] == 'help':
         help(interactive)
         terminal.print_line()
-        return result
+        return False
 
     if command_list[0] == 'show':
         terminal.print_messages()
-        return result
+        return False
 
     if command_list[0] == 'exit':
         sys.exit(0)
@@ -129,28 +124,27 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
         messages.reset_chat()
         rprint(f'[cyan]Session Reset | {model_name}[/]')
         terminal.print_line()
-        return result
+        return False
 
     if command_list[0] == 'save':
-        save_chat()
-        return result
+        save_chat(command_list[1:])
+        return False
 
     if command_list[0] == 'load':
-        return result
+        return False
 
     if command_list[0] == 'import':
         file_imported = import_file(command_list[1:])
         if file_imported:
-            result['call_api'] = True
-            return result
-        return result
+            return True
+        return False
 
     if command_list[0] == 'export':
-        return result
+        return False
 
-    result['call_api'] = True
-    result['continue'] = False
-    return result
+    terminal.print_not_a_command(command_data)
+    help(interactive=interactive)
+    return False
 
 
 def help(interactive: bool) -> None:
@@ -206,11 +200,19 @@ def file_content(file_path: str) -> None:
 
 
 def save_chat(command_data: List[str]) -> None:
-            # io.save_chat('test_name', messages)
-            # rprint('Chat saved')
-            # call_api = False
-            # continue
-    sys.exit(0)
+    if len(command_data) < 1:
+        file_name = 'default'
+
+
+    if len(command_data) > 0:
+        if messages.is_help_message(command_data[0]):
+            terminal.print_save_help()
+            return
+        file_name = command_data[0]
+
+    io.save_chat(file_name)
+    terminal.print_chat_saved(file_name)
+    return
 
 
 def load_chat(filter):

@@ -13,6 +13,37 @@ import sys
 
 openai.api_key = os.environ.get('OPENAI_API_KEY', None)
 
+model_data = {
+    'gpt-4': {
+        'max_tokens': 8192
+    },
+    'gpt-4-0314': {
+        'max_tokens': 8192
+    },
+    'gpt-4-32k': {
+        'max_tokens': 32768
+    },
+    'gpt-4-32k-0314': {
+        'max_tokens': 32768
+    },
+    'gpt-3.5-turbo': {
+        'max_tokens': 4096
+    },
+    'gpt-3.5-turbo-0301': {
+        'max_tokens': 4096
+    },
+    'text-davinci-003': {
+        'max_tokens': 4097
+    },
+    'text-davinci-002': {
+        'max_tokens': 4097
+    },
+    'code-davinci-002': {
+        'max_tokens': 8001
+    },
+}
+
+
 
 def assert_openai_api_key():
     if not openai.api_key:
@@ -110,3 +141,8 @@ def show_model_list():
     for m in list_models_simple():
         table.add_row(m['name'], m['created'])
     rich.print(table)
+
+def get_model_token_limit(model_name: str) -> int:
+    if model_name in model_data.keys():
+        return model_data[model_name]
+    return 0

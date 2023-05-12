@@ -16,7 +16,7 @@ from prompt_toolkit.completion import WordCompleter
 
 def interactive_session(model_name, flags, commands, parameters):
     terminal.print_title(model_name)
-    command_handler.help(interactive=True)
+    rprint(' Type [magenta]/help[/] for a list of commands')
     terminal.print_line()
     call_api = True
     while True:
@@ -44,22 +44,17 @@ def interactive_session(model_name, flags, commands, parameters):
 
         # Alternate options for commands
         # A single ? or / or the word help
-        if len(user_message) == 1:
-            if user_message.startswith('?') or user_message.startswith('/'):
-                user_message = '/help'
-        if user_message == 'help':
+        if len(user_message) > 0 and messages.is_help_message(user_message):
             user_message = '/help'
         # VIM quit
         if user_message == ':q':
             user_message = '/exit'
 
         # A forward slash indicates a command rather than a message
-        if user_message.lower().startswith('/'):
-            result = command_handler.action(
+        if user_message.lower().startswith('/') or user_message.lower().startswith(':'):
+            call_api = command_handler.action(
                 command_data=user_message[1:], model_name=model_name, interactive=True)
-            call_api = result['call_api']
-            if result['continue']:
-                continue
+            continue
         messages.add_user_content(user_message)
 
 

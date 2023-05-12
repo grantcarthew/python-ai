@@ -73,6 +73,12 @@ def print_command_help(command_list: List[dict], interactive: bool = False) -> N
     for command in command_list:
         table.add_row(f'{command["name"]} {command["option_help"]}', command['description'])
     print(table)
+    print_line()
+
+
+def print_not_a_command(user_message: str) -> None:
+    rprint(f'[red]This is not a command: {user_message}[/]')
+    print_line()
 
 
 def print_messages():
@@ -84,4 +90,20 @@ def print_messages():
             rprint(f'[cyan]    {part["content"]}[/]')
         else:
             rprint(f'[white]    {part["content"]}[/]')
+    print_line()
+
+def print_chat_saved(file_name):
+    rprint(f'Chat saved: {file_name}')
+    print_line()
+
+def print_save_help():
+    title='Available Help Options'
+    table = Table(title=title)
+
+    table.add_column('Command', justify='left', style='cyan', no_wrap=True)
+    table.add_column('Description', justify='left', style='green')
+    table.add_row(f'/save', 'Save the current chat under the name "default"')
+    table.add_row(f'/save [save-name]', 'Save the current chat under the supplied name')
+    table.add_row(f'/save help', 'Display this help message')
+    print(table)
     print_line()
