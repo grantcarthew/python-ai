@@ -1,18 +1,9 @@
-from pathlib import Path, PurePath
+from pathlib import Path
 from lib.definitions import AI_SAVE_PATH
 from lib.ai import messages
 from rich import print as rprint
 import json
 import sys
-
-
-def path_has_directory(path: str) -> bool:
-    path = PurePath(path)
-    return len(path.parts) > 1
-
-def make_dir_for_parent(path: str) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
 
 
 def get_saved_chats_path():
@@ -32,19 +23,21 @@ def list_saved_chats(filter: str = None) -> list:
 def save_chat(file_name: str) -> None:
     if file_name.startswith('/'):
         file_name = file_name[1:]
+    file_name = file_name.replace(' ', '-')
+    save_path = (AI_SAVE_PATH / f'{file_name}.json')
 
-    if path_has_directory(file_name):
-        file_save_path = Path(AI_SAVE_PATH) / file_name
-        make_dir_for_parent(file_save_path)
-    save_path = Path(AI_SAVE_PATH) / f'{file_name}.json'
+    if '/' in file_name:
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(save_path, 'w') as f:
         json.dump(messages.chat, f, indent=4)
 
 
 def load_chat(file_name):
-    load_path = Path(AI_SAVE_PATH) / f'{file_name}.json'
+    load_path = (AI_SAVE_PATH / f'{file_name}.json')
     with open(load_path, 'r') as f:
         return json.load(f)
+
 
 def get_file_content(file_path):
     if not file_path:

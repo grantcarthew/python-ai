@@ -3,7 +3,6 @@ from rich import print as rprint
 from rich.color import Color
 from lib.ai import terminal
 from lib.openai import text
-from lib.definitions import AI_HISTORY_PATH
 from lib.ai import io
 from lib.ai import user_input
 from lib.ai import command_handler

@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from lib import cache
-from lib.definitions import AI_CACHE_PATH
 from lib.config import load_config, save_config
 from pick import pick
 from rich.console import Console

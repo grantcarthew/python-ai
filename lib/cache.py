@@ -86,7 +86,7 @@ def __assert_cache(cache):
 
 def set_value(key: str, value: any, ttl: int = 0) -> None:
     """ Sets an AWS Account cache key to a value with optional TTL """
-    with mutex, shelve.open(AI_CACHE_PATH) as cache:
+    with mutex, shelve.open(str(AI_CACHE_PATH)) as cache:
         __assert_cache(cache)
         if ttl > 0:
             ttl = datetime.now() + timedelta(milliseconds=ttl)
@@ -99,7 +99,7 @@ def set_value(key: str, value: any, ttl: int = 0) -> None:
 
 def get_value(key: str) -> any:
     """ Gets a value from the AWS Account cache if exists and within TTL """
-    with mutex, shelve.open(AI_CACHE_PATH) as cache:
+    with mutex, shelve.open(str(AI_CACHE_PATH)) as cache:
         __assert_cache(cache)
         if key not in cache:
             return None
@@ -114,7 +114,7 @@ def get_value(key: str) -> any:
 
 def remove_value(key: str) -> bool:
     """ Deletes a specific key from the cache """
-    with mutex, shelve.open(AI_CACHE_PATH) as cache:
+    with mutex, shelve.open(str(AI_CACHE_PATH)) as cache:
         __assert_cache(cache)
         if key:
             del cache[key]
@@ -124,7 +124,7 @@ def remove_value(key: str) -> bool:
 
 def clear_cache() -> None:
     """ Deletes all keys from the cache including AWS Account related keys """
-    with mutex, shelve.open(AI_CACHE_PATH) as cache:
+    with mutex, shelve.open(str(AI_CACHE_PATH)) as cache:
         for key in list(cache.keys()):
             del cache[key]
     return None

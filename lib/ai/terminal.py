@@ -97,13 +97,20 @@ def print_chat_saved(file_name):
     print_line()
 
 def print_save_help():
-    title='Available Help Options'
+    title='Save Command Options'
     table = Table(title=title)
 
     table.add_column('Command', justify='left', style='cyan', no_wrap=True)
     table.add_column('Description', justify='left', style='green')
     table.add_row(f'/save', 'Save the current chat under the name "default"')
-    table.add_row(f'/save [save-name]', 'Save the current chat under the supplied name')
+    table.add_row(f'/save \[save-name]', 'Save the current chat under the supplied name')
     table.add_row(f'/save help', 'Display this help message')
     print(table)
+    rprint('[magenta]Examples:[/]')
+    rprint('[green]This example will save the chat under the name cooking:[/]')
+    rprint('[cyan]/save cooking[/]')
+    rprint('[green]This example will save the chat under a directory or category:[/]')
+    rprint('[cyan]/save recipe/curried egg[/]')
+    rprint('[green]Just using the save command will save the chat under the name "default":[/]')
+    rprint('[cyan]/save[/]')
     print_line()

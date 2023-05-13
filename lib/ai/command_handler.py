@@ -110,7 +110,6 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
 
     if command_list[0] == 'help':
         help(interactive)
-        terminal.print_line()
         return False
 
     if command_list[0] == 'show':
@@ -208,7 +207,7 @@ def save_chat(command_data: List[str]) -> None:
         if messages.is_help_message(command_data[0]):
             terminal.print_save_help()
             return
-        file_name = command_data[0]
+        file_name = '-'.join(command_data)
 
     io.save_chat(file_name)
     terminal.print_chat_saved(file_name)
