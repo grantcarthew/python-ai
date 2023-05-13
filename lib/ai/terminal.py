@@ -58,10 +58,8 @@ def print_verbose(model_name, flags, commands, parameters, prompt_name, tokens):
     print_messages()
 
 
-
-
 def print_command_help(command_list: List[dict], interactive: bool = False) -> None:
-    title='Available Commands'
+    title = 'Available Commands'
     if interactive:
         title += " (type '/' to enter commands)"
 
@@ -71,7 +69,8 @@ def print_command_help(command_list: List[dict], interactive: bool = False) -> N
     # table.add_column('Options', justify='right', style='magenta')
     table.add_column('Description', justify='left', style='green')
     for command in command_list:
-        table.add_row(f'{command["name"]} {command["option_help"]}', command['description'])
+        table.add_row(
+            f'{command["name"]} {command["option_help"]}', command['description'])
     print(table)
     print_line()
 
@@ -92,18 +91,21 @@ def print_messages():
             rprint(f'[white]    {part["content"]}[/]')
     print_line()
 
+
 def print_chat_saved(file_name):
     rprint(f'Chat saved: {file_name}')
     print_line()
 
+
 def print_save_help():
-    title='Save Command Options'
+    title = 'Save Command Options'
     table = Table(title=title)
 
     table.add_column('Command', justify='left', style='cyan', no_wrap=True)
     table.add_column('Description', justify='left', style='green')
     table.add_row(f'/save', 'Save the current chat under the name "default"')
-    table.add_row(f'/save \[save-name]', 'Save the current chat under the supplied name')
+    table.add_row(f'/save \[save-name]',
+                  'Save the current chat under the supplied name')
     table.add_row(f'/save help', 'Display this help message')
     print(table)
     rprint('[magenta]Examples:[/]')
@@ -113,4 +115,33 @@ def print_save_help():
     rprint('[cyan]/save recipe/curried egg[/]')
     rprint('[green]Just using the save command will save the chat under the name "default":[/]')
     rprint('[cyan]/save[/]')
+    print_line()
+
+
+def print_chat_loaded(file_name):
+    rprint(f'Chat loaded: {file_name}')
+    print_line()
+
+
+def print_load_help():
+    title = 'Load Command Options'
+    table = Table(title=title)
+
+    table.add_column('Command', justify='left', style='cyan', no_wrap=True)
+    table.add_column('Description', justify='left', style='green')
+    table.add_row(f'/load', 'Load the "default" chat')
+    table.add_row(f'/load \[saved-chat-name]', 'Load the saved chat by name')
+    table.add_row(
+        f'/load .', 'A period will allow selection from all the saved chats')
+    table.add_row(f'/load \[part-name]',
+                  'Allow selection from a filtered list of saved chats')
+    table.add_row(f'/load help', 'Display this help message')
+    print(table)
+    rprint('[magenta]Examples:[/]')
+    rprint('[green]This example will load the chat under the name cooking:[/]')
+    rprint('[cyan]/load cooking[/]')
+    rprint('[green]This example will load the chat under a directory or category:[/]')
+    rprint('[cyan]/load recipe[/]')
+    rprint('[green]Just using the load command will load the "default" chat:[/]')
+    rprint('[cyan]/load[/]')
     print_line()

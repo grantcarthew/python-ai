@@ -10,6 +10,7 @@ def add_user_content(user_message: str) -> None:
 
     :param user_message: The user message to be added.
     """
+    global chat
     chat.append({'role': 'user', 'content': user_message})
 
 
@@ -19,6 +20,7 @@ def add_assistant_content(assistant_message: str) -> None:
 
     :param assistant_message: The assistant message to be added.
     """
+    global chat
     chat.append({'role': 'assistant', 'content': assistant_message})
 
 
@@ -26,7 +28,18 @@ def reset_chat() -> None:
     """
     Removes all content from the chat.
     """
+    global chat
     chat = list()
+
+
+def restore_chat(chat_to_restore: List[Dict[str, str]]) -> None:
+    """
+    Replaces the current chat with the chat_to_restore.
+
+    :param chat_to_restore: A loaded chat.
+    """
+    global chat
+    chat = chat_to_restore
 
 
 def is_help_message(message: str) -> bool:

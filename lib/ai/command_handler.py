@@ -130,6 +130,7 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
         return False
 
     if command_list[0] == 'load':
+        load_chat(command_list[1:])
         return False
 
     if command_list[0] == 'import':
@@ -211,26 +212,27 @@ def save_chat(command_data: List[str]) -> None:
 
     io.save_chat(file_name)
     terminal.print_chat_saved(file_name)
-    return
 
 
-def load_chat(filter):
-    file_path = user_input.get_file_path()
-    file_content = io.get_file_content(file_path)
-    messages.add_user_content(file_content)
-            # filter = None
-            # if user_message.lower().startswith('load '):
-            #     words = user_message.lower().split()
-            #     if len(words) > 2:
-            #         pass # TODO
-            #     if len(words) == 2:
-            #        filter = words[1]
-            # user_input.choose_saved_chat(filter)
-            # messages = io.load_chat('test_name')
-            # rprint('Chat loaded')
-            # call_api = False
-            # continue
-    return user_input.choose_saved_chat(filter)
+def load_chat(command_data: List[str]) -> None:
+    if len(command_data) < 1:
+        file_name = 'default'
+
+    if len(command_data) > 0:
+        if messages.is_help_message(command_data[0]):
+            terminal.print_load_help()
+            return
+
+        if command_data[0] == '.':
+            file_name = user_input.choose_saved_chat()
+        else:
+            file_name = '-'.join(command_data)
+        file_name = user_input.choose_saved_chat(file_name)
+
+    loaded_chat = io.load_chat(file_name)
+
+    messages.restore_chat(loaded_chat)
+    terminal.print_chat_loaded(file_name)
 
 def import_file(command_list: str = None) -> str:
     if len(command_list) < 1:
