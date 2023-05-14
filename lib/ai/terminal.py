@@ -145,3 +145,19 @@ def print_load_help():
     rprint('[green]Just using the load command will load the "default" chat:[/]')
     rprint('[cyan]/load[/]')
     print_line()
+
+
+def print_export_help():
+    title = 'Export Command Options'
+    table = Table(title=title)
+
+    table.add_column('Command', justify='left', style='cyan', no_wrap=True)
+    table.add_column('Description', justify='left', style='green')
+    table.add_row(f'/export', 'Exports the chat as Markdown')
+    table.add_row(f'/export \[number]', "Exports the last 'n' messages as Markdown")
+    table.add_row(f'/export \[pdf]', 'Exports the chat as a PDF')
+    table.add_row(f'/export help', 'Display this help message')
+    print(table)
+    rprint('[magenta]Note:[/]')
+    rprint('[green]Use the /config command to set the export location.[/]')
+    print_line()

@@ -140,6 +140,7 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
         return False
 
     if command_list[0] == 'export':
+        export_chat(command_list[1:], model_name)
         return False
 
     terminal.print_not_a_command(command_data)
@@ -234,14 +235,29 @@ def load_chat(command_data: List[str]) -> None:
     messages.restore_chat(loaded_chat)
     terminal.print_chat_loaded(file_name)
 
-def import_file(command_list: str = None) -> str:
-    if len(command_list) < 1:
+def import_file(command_data: List[str] = None) -> str:
+    if len(command_data) < 1:
         file_path = user_input.launch_file_browser()
         rprint(type(file_path))
         if not isinstance(file_path, str):
             return False
     else:
-        file_path = command_list[0]
+        file_path = command_data[0]
     file_content = io.get_file_content(file_path)
     messages.add_user_content(file_content)
     return True
+
+
+def export_chat(command_data: List[str], model_name) -> None:
+    if len(command_data) > 0:
+        if messages.is_help_message(command_data[0]):
+            terminal.print_export_help()
+            return
+
+        if command_data[0] == pdf:
+            # Export pdf
+            pass
+            return
+
+    doc = messages.convert_to_markdown(model_name)
+    io.export_chat(doc)

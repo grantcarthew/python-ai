@@ -49,3 +49,8 @@ def get_file_content(file_path):
     except Exception as err:
         rprint(f'Error: {err}')
         sys.exit(0)
+
+def export_chat(doc: str) -> None:
+    file_path = Path.home() / 'Downloads' / 'test.md'
+    file_path.write_text(doc)
+

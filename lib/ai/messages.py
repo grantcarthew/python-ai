@@ -1,5 +1,6 @@
 from typing import List, Dict
 from rich import print as rprint
+from datetime import datetime
 
 chat: List[Dict[str, str]] = []
 
@@ -77,3 +78,22 @@ def is_exit_message(message: str) -> bool:
     if message.lower() == ':q':
         return True
     return False
+
+
+def convert_to_markdown(model_name, chat_index: int = 0):
+    global chat
+    dt = datetime.now()
+    date_str = dt.strftime('%Y-%m-%d')
+    time_str = dt.strftime('%H:%M:%S')
+    doc = f'# ChatGPT | {model_name} | {date_str} | {time_str}\n\n'
+
+    if chat_index == 0:
+        for part in chat:
+            if part['role'] == 'user':
+                doc += f'\n---\n\n## User\n\n---\n\n'
+            else:
+                doc += f'\n---\n\n## Assistant\n\n---\n\n'
+            doc += part['content']
+            doc += '\n'
+    return doc
+
