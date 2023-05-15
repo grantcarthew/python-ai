@@ -1,4 +1,4 @@
-# MD-GPT Specification
+# Markdown Pseudo-Language Specification
 
 After reading a few articles online, I asked ChatGPT v4 to create a prompt specification with the following prompt:
 
