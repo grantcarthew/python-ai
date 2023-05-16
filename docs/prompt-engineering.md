@@ -10,6 +10,10 @@ Take a look at the articles written by [Cameron R. Wolfe](https://substack.com/p
 - [Advanced Prompt Engineering](https://cameronrwolfe.substack.com/p/advanced-prompt-engineering)
 - [Chain of Thought Prompting for LLMS](https://cameronrwolfe.substack.com/p/chain-of-thought-prompting-for-llms)
 
+Other great resources:
+
+- [Brex Prompt Engineering on GitHub](https://github.com/brexhq/prompt-engineering)
+
 ## Pseudo-Languages for Prompting
 
 I like to use Markdown for my prompts and with the help of ChatGPT I created the Markdown Pseudo-Language. There are other Pseudo-Languages for prompting around:
