@@ -1,6 +1,7 @@
 from typing import List, Dict
 from rich import print as rprint
 from datetime import datetime
+from lib import config
 
 chat: List[Dict[str, str]] = []
 
@@ -87,8 +88,9 @@ def is_exit_message(message: str) -> bool:
     return False
 
 
-def convert_to_markdown(model_name, chat_index: int = 0):
+def convert_to_markdown(chat_index: int = 0):
     global chat
+    model_name = config.get_text_model_name()
     dt = datetime.now()
     date_str = dt.strftime('%Y-%m-%d')
     time_str = dt.strftime('%H:%M:%S')

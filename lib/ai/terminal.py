@@ -6,6 +6,7 @@ from typing import List
 from rich import print
 from rich.table import Table
 from lib.ai import messages
+from lib import config
 
 
 console = Console()
@@ -19,9 +20,9 @@ def print_line(to_stderr: bool = False):
     console.print(Rule(style='blue'))
 
 
-def print_title(model_name, to_stderr: bool = False):
+def print_title(to_stderr: bool = False):
     print_line(to_stderr)
-    title = f'[cyan]ChatGPT | {model_name}[/]'
+    title = f'[cyan]ChatGPT | {config.get_text_model_name()}[/]'
     if to_stderr:
         rprint(title, file=sys.stderr)
     else:
@@ -29,7 +30,7 @@ def print_title(model_name, to_stderr: bool = False):
     print_line(to_stderr)
 
 
-def print_verbose(model_name, flags, commands, parameters, prompt_name, tokens):
+def print_verbose(flags, commands, parameters, prompt_name, tokens):
     rprint('[bold yellow]Session Details[/]')
     print_line()
     rprint('Command line arguments:')
@@ -45,7 +46,7 @@ def print_verbose(model_name, flags, commands, parameters, prompt_name, tokens):
     print_line()
     rprint('[yellow]Metadata[/]')
     print_line()
-    rprint(f'[magenta]Model: [cyan]{model_name}[/]')
+    rprint(f'[magenta]Model: [cyan]{config.get_text_model_name()}[/]')
     rprint(f'[magenta]Prompt: [cyan]{prompt_name}[/]')
     if tokens:
         rprint(f'[magenta]Tokens:[/]')

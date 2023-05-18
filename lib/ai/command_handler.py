@@ -2,6 +2,7 @@ import sys
 import subprocess
 import json
 from pick import pick
+from lib import config
 from lib.openai import prompts
 from lib.openai import models
 from lib.desktop.apps import open_vscode
@@ -105,7 +106,8 @@ def get_commands(interactive: bool = False) -> List[dict]:
         return [command for command in commands if command['interactive']]
     return [command for command in commands if command['passive']]
 
-def action(command_data: list[str], model_name: str, interactive: bool = False) -> dict:
+def action(command_data: list[str], interactive: bool = False) -> dict:
+    model_name = config.get_text_model_name()
     command_list = command_data.split()
 
     if command_list[0] == 'help':
@@ -140,11 +142,11 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
         return False
 
     if command_list[0] == 'export':
-        export_chat(command_list[1:], model_name)
+        export_chat(command_list[1:])
         return False
 
     if command_list[0] == 'config':
-        configure_system(command_list[1:], model_name)
+        configure_system(command_list[1:])
         return False
 
 
@@ -252,7 +254,7 @@ def import_file(command_data: List[str] = None) -> str:
     return True
 
 
-def export_chat(command_data: List[str], model_name) -> None:
+def export_chat(command_data: List[str]) -> None:
     if len(command_data) > 0:
         if messages.is_help_message(command_data[0]):
             terminal.print_export_help()
@@ -263,7 +265,7 @@ def export_chat(command_data: List[str], model_name) -> None:
             pass
             return
 
-    doc = messages.convert_to_markdown(model_name)
+    doc = messages.convert_to_markdown()
     io.export_chat(doc)
 
 def configure_system(command_list: List[str]) -> None:

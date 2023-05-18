@@ -72,6 +72,14 @@ def get_file_path() -> str:
         sys.exit(0)
 
 
+def get_directory_path() -> str:
+    rprint(f'Type in the directory path:')
+    try:
+        return session.prompt()
+    except KeyboardInterrupt:
+        sys.exit(0)
+
+
 def launch_file_browser() -> str:
     try:
         root = tk.Tk()
@@ -80,3 +88,13 @@ def launch_file_browser() -> str:
         return file_path
     except:
         return get_file_path()
+
+
+def launch_directory_browser() -> str:
+    try:
+        root = tk.Tk()
+        root.withdraw()  # Hide the root window
+        directory_path = filedialog.askdirectory()
+        return directory_path
+    except:
+        return get_directory_path()

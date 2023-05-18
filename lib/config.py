@@ -1,13 +1,14 @@
-import os
-from lib.definitions import AI_CONFIG_PATH, AI_VERSION
 from datetime import datetime, timedelta
+from functools import lru_cache
+from lib.definitions import AI_CONFIG_PATH
+from lib.definitions import AI_CONFIG_PATH, AI_VERSION
+from lib.openai import models
+from pathlib import Path
 from threading import Lock
+import json
+import os
 import rich
 import shelve
-import json
-from pathlib import Path
-from lib.definitions import AI_CONFIG_PATH
-from lib.openai import models
 mutex = Lock()
 
 default_export_path = Path.home() / 'Downloads'
@@ -32,12 +33,14 @@ def __assert_config(config):
 
 def set_value(key: str, value: any) -> None:
     """ Sets a config value """
+    get_value.cache_clear()
     with mutex, shelve.open(str(AI_CONFIG_PATH)) as config:
         __assert_config(config)
         config[key] = value
     return None
 
 
+@lru_cache(maxsize=None)
 def get_value(key: str) -> any:
     """ Gets a value from the config """
     with mutex, shelve.open(str(AI_CONFIG_PATH)) as config:

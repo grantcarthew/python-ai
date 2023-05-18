@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from lib import cache
+from lib import config
 from pick import pick
 from rich.console import Console
 from rich.table import Table
@@ -96,8 +97,9 @@ def get_gpt_models(filter: str = None) -> list:
     return models
 
 
-def choose_model(current_model_name: str, filter: str = None) -> str:
+def choose_model(filter: str = None) -> str:
     models = sorted(get_gpt_models(filter))
+    current_model_name = config.get_text_model_name()
     if len(models) == 1:
         return models[0]
     if type(filter) == str:
@@ -136,7 +138,8 @@ def show_model_list():
         table.add_row(m['name'], m['created'])
     rich.print(table)
 
-def get_model_token_limit(model_name: str) -> int:
+def get_model_token_limit() -> int:
+    model_name = config.get_text_model_name()
     if model_name in model_data.keys():
         return model_data[model_name]
     return 0

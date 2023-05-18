@@ -1,6 +1,7 @@
 import sys
 from rich import print as rprint
 from rich.color import Color
+from lib import config
 from lib.ai import terminal
 from lib.openai import text
 from lib.ai import io
@@ -13,10 +14,11 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.completion import WordCompleter
 
 
-def interactive_session(model_name, flags, commands, parameters):
-    terminal.print_title(model_name)
+def interactive_session(flags, commands, parameters):
+    terminal.print_title()
     rprint(' Type [magenta]/help[/] for a list of commands')
     terminal.print_line()
+    model_name = config.get_text_model_name()
     call_api = True
     while True:
         if flags['debug']:
@@ -51,13 +53,13 @@ def interactive_session(model_name, flags, commands, parameters):
 
         # A forward slash indicates a command rather than a message
         if user_message.lower().startswith('/') or user_message.lower().startswith(':'):
-            call_api = command_handler.action(
-                command_data=user_message[1:], model_name=model_name, interactive=True)
+            call_api = command_handler.action(command_data=user_message[1:], interactive=True)
             continue
         messages.add_user_content(user_message)
 
 
-def passive_session(model_name, flags, commands, parameters) -> dict:
+def passive_session(flags, commands, parameters) -> dict:
+    model_name = config.get_text_model_name()
     session_data = {
         'finish_reason': None,
         'content': None,

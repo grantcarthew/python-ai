@@ -21,7 +21,6 @@ from lib.openai import models
 # This install function from 'rich' adds syntax highlighting to exceptions
 install()
 
-
 models.assert_openai_api_key()
 text_model_name = config.get_text_model_name()
 flags, commands, parameters = argument_parser()
@@ -32,7 +31,7 @@ if flags['debug']:
     rprint(f'parameters: {parameters}')
 
 if commands['help']:
-    terminal.print_title(text_model_name)
+    terminal.print_title()
     command_handler.help_command(interactive=flags['interactive'])
     terminal.print_line()
     sys.exit(0)
@@ -48,7 +47,7 @@ if commands['load']:
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
 if not text_model_name in model_list or flags['model']:
-    text_model_name = models.choose_model(text_model_name, flags['model'])
+    text_model_name = models.choose_model(flags['model'])
     config.set_text_model_name(text_model_name)
 
 prompt_name, prompt = command_handler.get_prompt(commands['prompt'])
@@ -74,24 +73,22 @@ if commands['query']:
 
 if flags['interactive']:
     if flags['verbose']:
-        terminal.print_verbose(text_model_name, flags,
-                              commands, parameters, prompt_name, None)
-    interactive_session(text_model_name, flags, commands, parameters)
+        terminal.print_verbose(flags, commands, parameters, prompt_name, None)
+    interactive_session(flags, commands, parameters)
 
 if flags['debug']:
     rprint(f'messages: {messages.chat}')
 
-terminal.print_title(text_model_name, to_stderr=True)
+terminal.print_title(to_stderr=True)
 
-session_data = passive_session(
-    text_model_name, flags, commands, parameters)
+session_data = passive_session(flags, commands, parameters)
 
 finish_reason_check(session_data['finish_reason'])
 
 if flags['verbose']:
-    terminal.print_title(text_model_name)
-    terminal.print_verbose(text_model_name, flags, commands,
-                          parameters, prompt_name, session_data['tokens'])
+    terminal.print_title()
+    terminal.print_verbose(flags, commands, parameters,
+                           prompt_name, session_data['tokens'])
 
 send_to_clipboard(session_data['content'])
 if flags['synchronous'] or flags['verbose']:
