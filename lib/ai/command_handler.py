@@ -109,7 +109,7 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
     command_list = command_data.split()
 
     if command_list[0] == 'help':
-        help(interactive)
+        help_command(interactive)
         return False
 
     if command_list[0] == 'show':
@@ -143,12 +143,17 @@ def action(command_data: list[str], model_name: str, interactive: bool = False) 
         export_chat(command_list[1:], model_name)
         return False
 
+    if command_list[0] == 'config':
+        configure_system(command_list[1:], model_name)
+        return False
+
+
     terminal.print_not_a_command(command_data)
-    help(interactive=interactive)
+    help_command(interactive=interactive)
     return False
 
 
-def help(interactive: bool) -> None:
+def help_command(interactive: bool) -> None:
     command_list = get_commands(interactive=interactive)
     terminal.print_command_help(command_list=command_list, interactive=interactive)
 
@@ -203,7 +208,6 @@ def file_content(file_path: str) -> None:
 def save_chat(command_data: List[str]) -> None:
     if len(command_data) < 1:
         file_name = 'default'
-
 
     if len(command_data) > 0:
         if messages.is_help_message(command_data[0]):
@@ -261,3 +265,6 @@ def export_chat(command_data: List[str], model_name) -> None:
 
     doc = messages.convert_to_markdown(model_name)
     io.export_chat(doc)
+
+def configure_system(command_list: List[str]) -> None:
+    pass

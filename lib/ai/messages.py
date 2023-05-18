@@ -42,6 +42,13 @@ def restore_chat(chat_to_restore: List[Dict[str, str]]) -> None:
     global chat
     chat = chat_to_restore
 
+def ready_to_send() -> bool:
+    """
+    Returns True if the last message in the chat is a user role message.
+    """
+    global chat
+    return len(chat) > 0 and chat[-1]['role'] == 'user'
+
 
 def is_help_message(message: str) -> bool:
     """

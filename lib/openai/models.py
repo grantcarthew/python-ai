@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from lib import cache
-from lib.config import load_config, save_config
 from pick import pick
 from rich.console import Console
 from rich.table import Table
@@ -97,11 +96,7 @@ def get_gpt_models(filter: str = None) -> list:
     return models
 
 
-def choose_model(filter: str = None) -> str:
-    config = load_config()
-    current_model = None
-    if 'model' in config.keys():
-        current_model = config['model']
+def choose_model(current_model_name: str, filter: str = None) -> str:
     models = sorted(get_gpt_models(filter))
     if len(models) == 1:
         return models[0]
@@ -111,10 +106,10 @@ def choose_model(filter: str = None) -> str:
 
     try:
         default_index = 0
-        if current_model and current_model in models:
-            default_index = models.index(current_model)
+        if current_model_name and current_model_name in models:
+            default_index = models.index(current_model_name)
         chosen_model = pick(
-            models, f'Previous model: {current_model}\nChoose a model:', indicator='>', default_index=default_index)[0]
+            models, f'Previous model: {current_model_name}\nChoose a model:', indicator='>', default_index=default_index)[0]
     except KeyboardInterrupt:
         sys.exit(0)
     return chosen_model

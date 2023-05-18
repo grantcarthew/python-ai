@@ -51,6 +51,6 @@ def get_file_content(file_path):
         sys.exit(0)
 
 def export_chat(doc: str) -> None:
-    file_path = Path.home() / 'Downloads' / 'test.md'
+    file_path = Path.home() / 'Downloads' / 'chat_default.md'
     file_path.write_text(doc)
 

@@ -14,7 +14,7 @@ from lib.ai.user_input import initial_message
 from lib.ai.user_input import choose_saved_chat
 from lib.ai import io
 from lib.ai import messages
-from lib.config import save_config, load_config
+from lib import config
 from lib.desktop.clipboard import send_to_clipboard
 from lib.openai import models
 
@@ -23,7 +23,7 @@ install()
 
 
 models.assert_openai_api_key()
-config = load_config()
+text_model_name = config.get_text_model_name()
 flags, commands, parameters = argument_parser()
 
 if flags['debug']:
@@ -32,8 +32,8 @@ if flags['debug']:
     rprint(f'parameters: {parameters}')
 
 if commands['help']:
-    terminal.print_title(config['model'])
-    command_handler.help(interactive=flags['interactive'])
+    terminal.print_title(text_model_name)
+    command_handler.help_command(interactive=flags['interactive'])
     terminal.print_line()
     sys.exit(0)
 if commands['list']:
@@ -47,10 +47,9 @@ if commands['load']:
 
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
-if not config.get('model') or not config['model'] in model_list or flags['model']:
-    config['model'] = models.choose_model(flags['model'])
-    save_config(config)
-model_name = config['model']
+if not text_model_name in model_list or flags['model']:
+    text_model_name = models.choose_model(text_model_name, flags['model'])
+    config.set_text_model_name(text_model_name)
 
 prompt_name, prompt = command_handler.get_prompt(commands['prompt'])
 if prompt:
@@ -61,9 +60,12 @@ file_content = command_handler.file_content(commands['file'])
 if file_content:
     rprint(f'[yellow]File content loaded: {commands["file"]}[/]')
     messages.add_user_content(file_content)
-    messages.add_assistant_content('How can I assist you?')
+    if not prompt:
+        # If a prepared prompt has not been added, stop the message
+        # from the API and ask the user for an initial message
+        messages.add_assistant_content('How can I assist you?')
 
-if not commands['query'] and not flags['interactive']:
+if not commands['query'] and not flags['interactive'] and not messages.ready_to_send():
     while not commands['query']:
         commands['query'] = initial_message()
 
@@ -72,23 +74,23 @@ if commands['query']:
 
 if flags['interactive']:
     if flags['verbose']:
-        terminal.print_verbose(model_name, flags,
+        terminal.print_verbose(text_model_name, flags,
                               commands, parameters, prompt_name, None)
-    interactive_session(model_name, flags, commands, parameters)
+    interactive_session(text_model_name, flags, commands, parameters)
 
 if flags['debug']:
     rprint(f'messages: {messages.chat}')
 
-terminal.print_title(model_name, to_stderr=True)
+terminal.print_title(text_model_name, to_stderr=True)
 
 session_data = passive_session(
-    model_name, flags, commands, parameters)
+    text_model_name, flags, commands, parameters)
 
 finish_reason_check(session_data['finish_reason'])
 
 if flags['verbose']:
-    terminal.print_title(model_name)
-    terminal.print_verbose(model_name, flags, commands,
+    terminal.print_title(text_model_name)
+    terminal.print_verbose(text_model_name, flags, commands,
                           parameters, prompt_name, session_data['tokens'])
 
 send_to_clipboard(session_data['content'])

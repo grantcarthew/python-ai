@@ -75,17 +75,17 @@ def __assert_cache(cache):
     """ Ensures the cache is in a stable state """
     key = 'ai_version'
     if key in cache:
-        cacheData = cache[key]
-        if cacheData == AI_VERSION:
+        cache_data = cache[key]
+        if cache_data == AI_VERSION:
             return
 
-    for keyToClear in list(cache.keys()):
-        del cache[keyToClear]
+    for key_to_clear in list(cache.keys()):
+        del cache[key_to_clear]
     cache[key] = AI_VERSION
 
 
 def set_value(key: str, value: any, ttl: int = 0) -> None:
-    """ Sets an AWS Account cache key to a value with optional TTL """
+    """ Sets a value with optional TTL """
     with mutex, shelve.open(str(AI_CACHE_PATH)) as cache:
         __assert_cache(cache)
         if ttl > 0:
@@ -98,18 +98,18 @@ def set_value(key: str, value: any, ttl: int = 0) -> None:
 
 
 def get_value(key: str) -> any:
-    """ Gets a value from the AWS Account cache if exists and within TTL """
+    """ Gets a value from the cache if exists and within TTL """
     with mutex, shelve.open(str(AI_CACHE_PATH)) as cache:
         __assert_cache(cache)
         if key not in cache:
             return None
-        cacheData = cache[key]
+        cache_data = cache[key]
 
-    if type(cacheData['ttl']) != datetime:
-        return cacheData['value']
-    if cacheData['ttl'] < datetime.now():
+    if type(cache_data['ttl']) != datetime:
+        return cache_data['value']
+    if cache_data['ttl'] < datetime.now():
         return None
-    return cacheData['value']
+    return cache_data['value']
 
 
 def remove_value(key: str) -> bool:
@@ -123,7 +123,7 @@ def remove_value(key: str) -> bool:
 
 
 def clear_cache() -> None:
-    """ Deletes all keys from the cache including AWS Account related keys """
+    """ Deletes all keys from the cache """
     with mutex, shelve.open(str(AI_CACHE_PATH)) as cache:
         for key in list(cache.keys()):
             del cache[key]
