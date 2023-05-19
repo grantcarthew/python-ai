@@ -40,9 +40,15 @@ def get_prompt_first_match(filter):
     return next((p for p in list_prompts() if filter in p), None)
 
 def get_prompt_match(filter):
+    print(filter)
     if not filter:
         return list()
-    return [p for p in list_prompts() if filter in p]
+
+    results = [p for p in list_prompts() if filter in p]
+    if len(results) < 1 and '/' in filter:
+        filter = filter.split('/')[0]
+        results = [p for p in list_prompts() if filter in p]
+    return results
 
 def get_prompts_path():
     return AI_PROMPTS_PATH
