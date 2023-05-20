@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from lib import cache
-from lib import config
 from pick import pick
 from rich.console import Console
 from rich.table import Table
@@ -97,9 +96,8 @@ def get_gpt_models(filter: str = None) -> list:
     return models
 
 
-def choose_model(filter: str = None) -> str:
+def choose_model(current_model_name: str = '', filter: str = None) -> str:
     models = sorted(get_gpt_models(filter))
-    current_model_name = config.get_text_model_name()
     if len(models) == 1:
         return models[0]
     if type(filter) == str:

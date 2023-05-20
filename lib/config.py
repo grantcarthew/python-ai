@@ -62,7 +62,7 @@ def get_text_model_name() -> str:
     """ Gets the text model name from the config """
     text_model_name = get_value(text_model_name_key)
     if not text_model_name:
-        text_model_name = models.choose_model(text_model_name)
+        text_model_name = models.choose_model()
         set_value(text_model_name_key, text_model_name)
     return text_model_name
 

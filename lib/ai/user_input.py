@@ -1,3 +1,4 @@
+from lib import config
 from lib.ai import io
 from lib.ai import terminal
 from lib.definitions import AI_HISTORY_PATH
@@ -98,3 +99,7 @@ def launch_directory_browser() -> str:
         return directory_path
     except:
         return get_directory_path()
+
+def change_text_model() -> None:
+    current_model = config.get_text_model_name()
+    rprint("Do you with to change the Text Model?")
