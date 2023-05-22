@@ -1,12 +1,14 @@
 from lib import config
 from lib.ai import io
 from lib.ai import terminal
+from lib.openai import models
 from lib.definitions import AI_HISTORY_PATH
 from rich import print as rprint
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
 from prompt_toolkit.styles import Style
+from prompt_toolkit.shortcuts import confirm
 from pick import pick
 import sys
 from rich.color import Color
@@ -101,5 +103,12 @@ def launch_directory_browser() -> str:
         return get_directory_path()
 
 def change_text_model() -> None:
+    terminal.print_line()
     current_model = config.get_text_model_name()
     rprint("Do you with to change the Text Model?")
+    change_model = confirm()
+    if change_model:
+        chosen_model = models.choose_model(current_model)
+        config.set_text_model_name(chosen_model)
+    terminal.print_title()
+

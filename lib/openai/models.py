@@ -87,7 +87,7 @@ def filter_models(filter: str) -> List[dict]:
 
 
 def get_gpt_models(filter: str = None) -> list:
-    gpt_models = [m['name'] for m in filter_models('gpt')]
+    gpt_models = sorted([m['name'] for m in filter_models('gpt')])
     models = gpt_models
     if filter and type(filter) == str:
         models = [m for m in models if filter.lower() in m.lower()]
@@ -97,7 +97,7 @@ def get_gpt_models(filter: str = None) -> list:
 
 
 def choose_model(current_model_name: str = '', filter: str = None) -> str:
-    models = sorted(get_gpt_models(filter))
+    models = get_gpt_models(filter)
     if len(models) == 1:
         return models[0]
     if type(filter) == str:

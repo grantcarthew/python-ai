@@ -18,6 +18,20 @@ from typing import List
 def get_commands(interactive: bool = False) -> List[dict]:
     commands = [
         {
+            'name': '3',
+            'description': 'Change model to gpt-3.5-turbo',
+            'option_help': '',
+            'interactive': True,
+            'passive': True
+        },
+        {
+            'name': '4',
+            'description': 'Change model to gpt-4',
+            'option_help': '',
+            'interactive': True,
+            'passive': True
+        },
+        {
             'name': 'config',
             'description': 'Change ai configuration',
             'option_help': '',
@@ -110,6 +124,16 @@ def action(command_data: list[str], interactive: bool = False) -> dict:
     model_name = config.get_text_model_name()
     command_list = command_data.split()
 
+    if command_list[0] == '3':
+        config.set_text_model_name('gpt-3.5-turbo')
+        terminal.print_title()
+        return False
+
+    if command_list[0] == '4':
+        config.set_text_model_name('gpt-4')
+        terminal.print_title()
+        return False
+
     if command_list[0] == 'help':
         help_command(interactive)
         return False
@@ -123,8 +147,7 @@ def action(command_data: list[str], interactive: bool = False) -> dict:
 
     if command_list[0] == 'reset':
         messages.reset_chat()
-        rprint(f'[cyan]Session Reset | {model_name}[/]')
-        terminal.print_line()
+        terminal.print_session_reset()
         return False
 
     if command_list[0] == 'save':
@@ -269,4 +292,4 @@ def export_chat(command_data: List[str]) -> None:
     io.export_chat(doc)
 
 def configure_system(command_list: List[str]) -> None:
-    pass
+    user_input.change_text_model()

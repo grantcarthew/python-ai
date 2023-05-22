@@ -33,7 +33,6 @@ if flags['debug']:
 if commands['help']:
     terminal.print_title()
     command_handler.help_command(interactive=flags['interactive'])
-    terminal.print_line()
     sys.exit(0)
 if commands['list']:
     command_handler.list_command(commands['list'])

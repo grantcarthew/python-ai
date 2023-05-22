@@ -29,6 +29,12 @@ def print_title(to_stderr: bool = False):
         rprint(title)
     print_line(to_stderr)
 
+def print_interactive_title():
+    print_title()
+    rprint(' Type [magenta]/help[/] for a list of commands')
+    print_line()
+
+
 
 def print_verbose(flags, commands, parameters, prompt_name, tokens):
     rprint('[bold yellow]Session Details[/]')
@@ -60,6 +66,7 @@ def print_verbose(flags, commands, parameters, prompt_name, tokens):
 
 
 def print_command_help(command_list: List[dict], interactive: bool = False) -> None:
+    print_title()
     title = 'Available Commands'
     if interactive:
         title += " (type '/' to enter commands)"
@@ -77,11 +84,12 @@ def print_command_help(command_list: List[dict], interactive: bool = False) -> N
 
 
 def print_not_a_command(user_message: str) -> None:
-    rprint(f'[red]This is not a command: {user_message}[/]')
     print_line()
+    rprint(f'[red]Invalid command: "{user_message}"[/]')
 
 
 def print_messages():
+    print_line()
     if len(messages.chat) == 0:
         rprint(f'[magenta]No chat messages to display[/]')
     for part in messages.chat:
@@ -94,11 +102,13 @@ def print_messages():
 
 
 def print_chat_saved(file_name):
+    print_line()
     rprint(f'Chat saved: {file_name}')
     print_line()
 
 
 def print_save_help():
+    print_line()
     title = 'Save Command Options'
     table = Table(title=title)
 
@@ -118,13 +128,21 @@ def print_save_help():
     rprint('[cyan]/save[/]')
     print_line()
 
+def print_session_reset():
+    print_line()
+    rprint(f'[cyan]Session Reset | {config.get_text_model_name()}[/]')
+    print_line()
+
+
 
 def print_chat_loaded(file_name):
+    print_line()
     rprint(f'Chat loaded: {file_name}')
     print_line()
 
 
 def print_load_help():
+    print_line()
     title = 'Load Command Options'
     table = Table(title=title)
 
@@ -149,6 +167,7 @@ def print_load_help():
 
 
 def print_export_help():
+    print_line()
     title = 'Export Command Options'
     table = Table(title=title)
 

@@ -15,16 +15,16 @@ from prompt_toolkit.completion import WordCompleter
 
 
 def interactive_session(flags, commands, parameters):
-    terminal.print_title()
-    rprint(' Type [magenta]/help[/] for a list of commands')
-    terminal.print_line()
-    model_name = config.get_text_model_name()
+    terminal.print_interactive_title()
     call_api = True
     while True:
+        model_name = config.get_text_model_name()
         if flags['debug']:
-            rprint(f'messages: {messages.chat}')
+            rprint(f'   model: {model_name}')
             rprint(f'call_api: {call_api}')
+            rprint(f'messages: {messages.chat}')
         if len(messages.chat) > 0 and messages.chat[-1]['role'] == 'user' and call_api:
+            terminal.print_line()
             response = text.call_gpt_async(model_name, messages.chat, parameters)
             messages.add_assistant_content(response['content'])
             terminal.print_line()
@@ -34,7 +34,6 @@ def interactive_session(flags, commands, parameters):
             command_names = [f'/{c["name"]}' for c in command_items]
             command_completer = WordCompleter(command_names, ignore_case=True)
             user_message = user_input.interactive_prompt(command_completer)
-            terminal.print_line()
         except KeyboardInterrupt:
             sys.exit(0)
 
