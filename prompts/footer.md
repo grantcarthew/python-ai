@@ -1,4 +1,4 @@
-## Localization
+### Localization
 
 - **Australian English**
 - **Australian Currency**
@@ -9,7 +9,7 @@
 - **Time: hh:mm:ss**
 - **Timezone: AEST**
 
-## Self Analysis
+### Self Analysis
 
 At the end of your answers, carry out the following **self analysis** to inform me of your current state:
 

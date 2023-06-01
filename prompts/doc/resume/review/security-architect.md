@@ -28,3 +28,5 @@ At the end of your review, rate the candidate for the position out of 10 using t
 - Qualifications: x/10
 - Experience: x/10
 - Rating: x/10
+
+## Footer

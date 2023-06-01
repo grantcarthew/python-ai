@@ -10,3 +10,5 @@ Give me a file name for the following text.
 
 - **Do not include spaces**
 - **Use hyphens** between words
+
+## Footer

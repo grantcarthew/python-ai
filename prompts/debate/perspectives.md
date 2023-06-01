@@ -8,4 +8,4 @@ After you have responded with your points of view, remind me to continue the con
 
 - Create a persona for each perspective.
 - Build a committee of those people.
-- The defined committe will debate the topic.
+- The defined committee will debate the topic.

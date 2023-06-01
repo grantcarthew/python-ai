@@ -15,3 +15,5 @@ The text to be reviewed will be provided in the next message.
 - For your **first review**:
   - **No more than a sentence**.
   - **List any errors** if you find any.
+
+## Footer
