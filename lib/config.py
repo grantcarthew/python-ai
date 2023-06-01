@@ -78,7 +78,7 @@ def get_export_path() -> str:
     if not export_path:
         export_path = default_export_path
         set_value(export_path_key, export_path)
-    return export_path
+    return Path(export_path)
 
 
 def set_export_path(export_path: str) -> None:

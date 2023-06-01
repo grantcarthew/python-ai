@@ -33,7 +33,6 @@ def call_gpt_async(model: str, messages: list, parameters: dict) -> dict:
         print()
     except KeyboardInterrupt:
         print()
-        sys.exit(0)
     except Exception as err:
         rich.print(f'[red]Error:[/] {err}')
 

@@ -121,6 +121,7 @@ def get_commands(interactive: bool = False) -> List[dict]:
     return [command for command in commands if command['passive']]
 
 def action(command_data: list[str], interactive: bool = False) -> dict:
+    terminal.print_line()
     model_name = config.get_text_model_name()
     command_list = command_data.split()
 

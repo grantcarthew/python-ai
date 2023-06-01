@@ -1,9 +1,14 @@
 from pathlib import Path
-from lib.definitions import AI_SAVE_PATH
+from lib.definitions import AI_SAVE_PATH, AI_CHAT_LOG_PATH
 from lib.ai import messages
+from lib import config
+from lib import utils
 from rich import print as rprint
 import json
 import sys
+
+datetimeiso = utils.generate_iso_datetime()
+chat_log_file_name = f'{datetimeiso}-chat-log.md'
 
 
 def get_saved_chats_path():
@@ -50,7 +55,14 @@ def get_file_content(file_path):
         rprint(f'Error: {err}')
         sys.exit(0)
 
-def export_chat(doc: str) -> None:
-    file_path = Path.home() / 'Downloads' / 'chat_default.md'
+def export_chat(doc: str, file_name: str = "") -> None:
+    file_path = config.get_export_path() / file_name
     file_path.write_text(doc)
 
+def update_chat_log(role: str, content: str) -> None:
+    file_path = AI_CHAT_LOG_PATH / chat_log_file_name
+    with file_path.open(mode='a') as log:
+        log.write('\n\n---\n\n')
+        log.write(f'# {role}')
+        log.write('\n\n---\n\n')
+        log.write(content)

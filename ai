@@ -21,6 +21,9 @@ from lib.openai import models
 # This install function from 'rich' adds syntax highlighting to exceptions
 install()
 
+terminal.print_line(to_stderr=True)
+terminal.print_title(to_stderr=True)
+
 models.assert_openai_api_key()
 text_model_name = config.get_text_model_name()
 flags, commands, parameters = argument_parser()
@@ -31,7 +34,6 @@ if flags['debug']:
     rprint(f'parameters: {parameters}')
 
 if commands['help']:
-    terminal.print_title()
     command_handler.help_command(interactive=flags['interactive'])
     sys.exit(0)
 if commands['list']:
@@ -42,7 +44,6 @@ if commands['load']:
     loaded_chat = command_handler.load(commands['load'])
     rprint(loaded_chat)
     sys.exit(0)
-
 
 model_list = [m['name'] for m in models.filter_models('gpt')]
 if not text_model_name in model_list or flags['model']:
@@ -70,6 +71,8 @@ if not commands['query'] and not flags['interactive'] and not messages.ready_to_
 if commands['query']:
     messages.add_user_content(commands['query'])
 
+terminal.print_messages()
+
 if flags['interactive']:
     if flags['verbose']:
         terminal.print_verbose(flags, commands, parameters, prompt_name, None)
@@ -78,14 +81,13 @@ if flags['interactive']:
 if flags['debug']:
     rprint(f'messages: {messages.chat}')
 
-terminal.print_title(to_stderr=True)
 
 session_data = passive_session(flags, commands, parameters)
 
 finish_reason_check(session_data['finish_reason'])
 
 if flags['verbose']:
-    terminal.print_title()
+    terminal.print_title(top_line=False)
     terminal.print_verbose(flags, commands, parameters,
                            prompt_name, session_data['tokens'])
 

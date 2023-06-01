@@ -2,6 +2,7 @@ from typing import List, Dict
 from rich import print as rprint
 from datetime import datetime
 from lib import config
+from lib.ai import io
 
 chat: List[Dict[str, str]] = []
 
@@ -14,6 +15,7 @@ def add_user_content(user_message: str) -> None:
     """
     global chat
     chat.append({'role': 'user', 'content': user_message})
+    io.update_chat_log(role='User', content=user_message)
 
 
 def add_assistant_content(assistant_message: str) -> None:
@@ -24,6 +26,7 @@ def add_assistant_content(assistant_message: str) -> None:
     """
     global chat
     chat.append({'role': 'assistant', 'content': assistant_message})
+    io.update_chat_log(role='Assistant', content=assistant_message)
 
 
 def reset_chat() -> None:

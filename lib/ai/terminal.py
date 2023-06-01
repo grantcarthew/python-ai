@@ -20,8 +20,7 @@ def print_line(to_stderr: bool = False):
     console.print(Rule(style='blue'))
 
 
-def print_title(to_stderr: bool = False):
-    print_line(to_stderr)
+def print_title(to_stderr: bool = False) -> None:
     title = f'[cyan]ChatGPT | {config.get_text_model_name()}[/]'
     if to_stderr:
         rprint(title, file=sys.stderr)
@@ -66,7 +65,6 @@ def print_verbose(flags, commands, parameters, prompt_name, tokens):
 
 
 def print_command_help(command_list: List[dict], interactive: bool = False) -> None:
-    print_title()
     title = 'Available Commands'
     if interactive:
         title += " (type '/' to enter commands)"
@@ -80,35 +78,33 @@ def print_command_help(command_list: List[dict], interactive: bool = False) -> N
         table.add_row(
             f'{command["name"]} {command["option_help"]}', command['description'])
     print(table)
+    rprint('Note: Use CTRL + C whilst getting a response to stop receiving text.')
     print_line()
 
 
 def print_not_a_command(user_message: str) -> None:
-    print_line()
     rprint(f'[red]Invalid command: "{user_message}"[/]')
+    print_line()
 
 
 def print_messages():
-    print_line()
     if len(messages.chat) == 0:
         rprint(f'[magenta]No chat messages to display[/]')
     for part in messages.chat:
-        rprint(f'[magenta]  Role: {part["role"]}[/]')
+        rprint(f'[magenta]Role: {part["role"]}[/]')
         if part['role'] == 'user':
-            rprint(f'[cyan]    {part["content"]}[/]')
+            rprint(f'[cyan]{part["content"]}[/]')
         else:
-            rprint(f'[white]    {part["content"]}[/]')
+            rprint(f'[white]{part["content"]}[/]')
     print_line()
 
 
 def print_chat_saved(file_name):
-    print_line()
     rprint(f'Chat saved: {file_name}')
     print_line()
 
 
 def print_save_help():
-    print_line()
     title = 'Save Command Options'
     table = Table(title=title)
 
@@ -129,20 +125,17 @@ def print_save_help():
     print_line()
 
 def print_session_reset():
-    print_line()
     rprint(f'[cyan]Session Reset | {config.get_text_model_name()}[/]')
     print_line()
 
 
 
 def print_chat_loaded(file_name):
-    print_line()
     rprint(f'Chat loaded: {file_name}')
     print_line()
 
 
 def print_load_help():
-    print_line()
     title = 'Load Command Options'
     table = Table(title=title)
 
@@ -167,7 +160,6 @@ def print_load_help():
 
 
 def print_export_help():
-    print_line()
     title = 'Export Command Options'
     table = Table(title=title)
 
