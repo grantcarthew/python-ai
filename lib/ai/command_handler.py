@@ -15,6 +15,7 @@ from lib.ai import messages
 from pathlib import Path
 from typing import List
 
+
 def get_commands(interactive: bool = False) -> List[dict]:
     commands = [
         {
@@ -120,6 +121,7 @@ def get_commands(interactive: bool = False) -> List[dict]:
         return [command for command in commands if command['interactive']]
     return [command for command in commands if command['passive']]
 
+
 def action(command_data: list[str], interactive: bool = False) -> dict:
     terminal.print_line()
     model_name = config.get_text_model_name()
@@ -173,7 +175,6 @@ def action(command_data: list[str], interactive: bool = False) -> dict:
         configure_system(command_list[1:])
         return False
 
-
     terminal.print_not_a_command(command_data)
     help_command(interactive=interactive)
     return False
@@ -181,7 +182,8 @@ def action(command_data: list[str], interactive: bool = False) -> dict:
 
 def help_command(interactive: bool) -> None:
     command_list = get_commands(interactive=interactive)
-    terminal.print_command_help(command_list=command_list, interactive=interactive)
+    terminal.print_command_help(
+        command_list=command_list, interactive=interactive)
 
 
 def list_command(list_command: str) -> None:
@@ -265,6 +267,7 @@ def load_chat(command_data: List[str]) -> None:
     messages.restore_chat(loaded_chat)
     terminal.print_chat_loaded(file_name)
 
+
 def import_file(command_data: List[str] = None) -> str:
     if len(command_data) < 1:
         file_path = user_input.launch_file_browser()
@@ -279,18 +282,28 @@ def import_file(command_data: List[str] = None) -> str:
 
 
 def export_chat(command_data: List[str]) -> None:
+    doc = False
     if len(command_data) > 0:
         if messages.is_help_message(command_data[0]):
             terminal.print_export_help()
             return
 
-        if command_data[0] == pdf:
+        if command_data[0] == 'pdf':
             # Export pdf
             pass
             return
 
-    doc = messages.convert_to_markdown()
-    io.export_chat(doc)
+        if command_data[0].isdigit():
+            doc = messages.convert_to_markdown(command_data[0])
+    else:
+        doc = messages.convert_to_markdown()
+
+    if doc:
+        io.export_chat(doc)
+    else:
+        terminal.print_export_help()
+    return
+
 
 def configure_system(command_list: List[str]) -> None:
     user_input.change_text_model()

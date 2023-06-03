@@ -97,15 +97,24 @@ def convert_to_markdown(chat_index: int = 0):
     dt = datetime.now()
     date_str = dt.strftime('%Y-%m-%d')
     time_str = dt.strftime('%H:%M:%S')
-    doc = f'# ChatGPT | {model_name} | {date_str} | {time_str}\n'
 
-    if chat_index == 0:
-        for part in chat:
+    def chat_to_markdown(chat_messages):
+        doc = f'# ChatGPT | {model_name} | {date_str} | {time_str}\n'
+        for part in chat_messages:
             if part['role'] == 'user':
                 doc += f'\n---\n\n## User\n\n---\n\n'
             else:
                 doc += f'\n---\n\n## Assistant\n\n---\n\n'
             doc += part['content']
             doc += '\n'
+        return doc
+
+    chat_index = int(chat_index)
+    if chat_index == 0:
+        doc = chat_to_markdown(chat)
+    else:
+        indexOffset = chat_index * 2
+        doc = chat_to_markdown(chat[-indexOffset:])
+
     return doc
 
