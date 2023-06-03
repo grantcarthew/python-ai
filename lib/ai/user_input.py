@@ -35,7 +35,6 @@ def interactive_prompt(command_completer) -> PromptSession:
 
 def initial_message():
     try:
-        terminal.print_line()
         rprint('[cyan]Type a message to start a chat[/]')
         rprint('[cyan]Type a file path to send the file contents[/]')
         rprint('[cyan]Multiline input enabled[/]')
@@ -60,7 +59,6 @@ def choose_saved_chat(filter: str = None):
 
 def saved_chat_file_name():
     try:
-        terminal.print_line()
         rprint('[cyan]Type a file name for saving this chat:[/]')
         terminal.print_line()
         return session.prompt()
@@ -103,7 +101,6 @@ def launch_directory_browser() -> str:
         return get_directory_path()
 
 def change_text_model() -> None:
-    terminal.print_line()
     current_model = config.get_text_model_name()
     rprint("Do you with to change the Text Model?")
     change_model = confirm()

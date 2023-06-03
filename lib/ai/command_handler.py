@@ -140,7 +140,7 @@ def action(command_data: list[str], interactive: bool = False) -> dict:
         return False
 
     if command_list[0] == 'show':
-        terminal.print_messages()
+        terminal.print_messages(report_if_none=True)
         return False
 
     if command_list[0] == 'exit':

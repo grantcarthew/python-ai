@@ -6,6 +6,11 @@ from lib import utils
 from rich import print as rprint
 import json
 import sys
+import webbrowser
+import os
+import sys
+import subprocess
+
 
 datetimeiso = utils.generate_iso_datetime()
 chat_log_file_name = f'{datetimeiso}-chat-log.md'
@@ -55,9 +60,15 @@ def get_file_content(file_path):
         rprint(f'Error: {err}')
         sys.exit(0)
 
-def export_chat(doc: str, file_name: str = "") -> None:
+
+def export_chat(doc: str, file_name: str = None) -> None:
+    if not file_name:
+        iso_date_time = utils.generate_iso_datetime()
+        file_name = Path(f'{iso_date_time}-chat-export.md')
     file_path = config.get_export_path() / file_name
     file_path.write_text(doc)
+    open_file(str(file_path))
+
 
 def update_chat_log(role: str, content: str) -> None:
     file_path = AI_CHAT_LOG_PATH / chat_log_file_name
@@ -66,3 +77,16 @@ def update_chat_log(role: str, content: str) -> None:
         log.write(f'# {role}')
         log.write('\n\n---\n\n')
         log.write(content)
+
+
+def open_file(file_path: str) -> None:
+    if sys.platform.startswith('darwin'):
+        subprocess.call(('open', file_path))
+    elif os.name == 'nt':
+        os.startfile(file_path)
+    elif os.name == 'posix':
+        subprocess.call(('xdg-open', file_path))
+
+
+def open_url(url: str) -> None:
+    webbrowser.open(url)

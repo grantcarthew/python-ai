@@ -97,7 +97,7 @@ def convert_to_markdown(chat_index: int = 0):
     dt = datetime.now()
     date_str = dt.strftime('%Y-%m-%d')
     time_str = dt.strftime('%H:%M:%S')
-    doc = f'# ChatGPT | {model_name} | {date_str} | {time_str}\n\n'
+    doc = f'# ChatGPT | {model_name} | {date_str} | {time_str}\n'
 
     if chat_index == 0:
         for part in chat:

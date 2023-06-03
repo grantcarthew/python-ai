@@ -16,6 +16,7 @@ from prompt_toolkit.completion import WordCompleter
 
 def interactive_session(flags, commands, parameters):
     terminal.print_interactive_title()
+    user_message = False
     call_api = True
     while True:
         model_name = config.get_text_model_name()
@@ -24,7 +25,8 @@ def interactive_session(flags, commands, parameters):
             rprint(f'call_api: {call_api}')
             rprint(f'messages: {messages.chat}')
         if len(messages.chat) > 0 and messages.chat[-1]['role'] == 'user' and call_api:
-            terminal.print_line()
+            if user_message:
+                terminal.print_line()
             response = text.call_gpt_async(model_name, messages.chat, parameters)
             messages.add_assistant_content(response['content'])
             terminal.print_line()
@@ -47,7 +49,7 @@ def interactive_session(flags, commands, parameters):
         if len(user_message) > 0 and messages.is_help_message(user_message):
             user_message = '/help'
         # VIM quit
-        if user_message == ':q':
+        if user_message == ':q' or user_message == 'exit' or user_message == 'quit':
             user_message = '/exit'
 
         # A forward slash indicates a command rather than a message
