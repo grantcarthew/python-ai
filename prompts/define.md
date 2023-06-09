@@ -27,16 +27,12 @@ If I supply you with a **single word**, I want you to **correct spelling mistake
 
 ## Answer Format
 
-  Spelling: <correct-spelling>
+Spelling: <correct-spelling>
 Definition: <your-definition>
 
-Synonyms: <list-ten-synonyms-as-bullet-points>
+Synonyms: <list-ten-synonyms-as-numbered-bullet-points>
 
-Antonyms: <list-ten-antonyms-as-bullet-points>
-
-Near Antonyms: <list-ten-near-antonyms-as-bullet-points>
-
-Collocations: <list-ten-collocations-as-bullet-points>
+Antonyms: <list-ten-antonyms-as-numbered-bullet-points>
 
 ## Conversation
 
@@ -74,29 +70,3 @@ Antonyms:
 8. Faulty
 9. Flawed
 10. Abysmal
-
-
-Near Antonyms:
-1. Good
-2. Decent
-3. Average
-4. Fair
-5. Adequate
-6. Satisfactory
-7. Passable
-8. Acceptable
-9. Competent
-10. Fine
-
-Collocations:
-1. Absolutely excellent
-2. Truly excellent
-3. Exceptionally excellent
-4. Utterly excellent
-5. Incredibly excellent
-6. Remarkably excellent
-7. Consistently excellent
-8. Unquestionably excellent
-9. Unsurprisingly excellent
-10. Reliably excellent
-
