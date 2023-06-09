@@ -9,6 +9,7 @@ from lib.desktop.apps import open_vscode
 from rich import print as rprint
 from lib.definitions import AI_SAVE_PATH
 from lib.ai import io
+from lib.ai import pdf
 from lib.ai import user_input
 from lib.ai import terminal
 from lib.ai import messages
@@ -283,26 +284,38 @@ def import_file(command_data: List[str] = None) -> str:
 
 def export_chat(command_data: List[str]) -> None:
     doc = False
-    if len(command_data) > 0:
-        if messages.is_help_message(command_data[0]):
-            terminal.print_export_help()
-            return
+    format_type = 'md'
+    chat_index = 0
+    command_data_length = len(command_data)
 
-        if command_data[0] == 'pdf':
-            # Export pdf
-            pass
-            return
-
-        if command_data[0].isdigit():
-            doc = messages.convert_to_markdown(command_data[0])
-    else:
+    if command_data_length < 1:
+        # TODO - Look up default format from config
         doc = messages.convert_to_markdown()
+        io.export_chat(format_type, doc)
+        return
 
-    if doc:
-        io.export_chat(doc)
-    else:
+    if messages.is_help_message(command_data[0]):
         terminal.print_export_help()
-    return
+        return
+
+    if command_data[0] in ['pdf', 'html', 'md']:
+        format_type = command_data[0]
+
+    if command_data[0].isdigit():
+        chat_index = command_data[0]
+
+    if command_data_length > 1 and command_data[1].isdigit():
+        chat_index = command_data[1]
+
+    doc = messages.change_format(format_type=format_type, chat_index=chat_index)
+    io.export_chat(format_type=format_type, doc=doc)
+    sys.exit()
+
+    if len(command_data) > 1:
+        if command_data[1].isdigit():
+            pdf.export_chat_to_pdf('test.pdf', command_data[1])
+            return
+    pdf.export_chat_to_pdf('test.pdf')
 
 
 def configure_system(command_list: List[str]) -> None:

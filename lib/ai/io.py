@@ -10,6 +10,7 @@ import webbrowser
 import os
 import sys
 import subprocess
+from datetime import datetime
 
 
 datetimeiso = utils.generate_iso_datetime()
@@ -61,12 +62,18 @@ def get_file_content(file_path):
         sys.exit(0)
 
 
-def export_chat(doc: str, file_name: str = None) -> None:
+def export_chat(format_type: str, doc: str, file_name: str = None) -> None:
     if not file_name:
         iso_date_time = utils.generate_iso_datetime()
-        file_name = Path(f'{iso_date_time}-chat-export.md')
+        file_name = Path(f'{iso_date_time}-chat-export.{format_type}')
+
     file_path = config.get_export_path() / file_name
-    file_path.write_text(doc)
+    if format_type in ['html', 'md']:
+        file_path.write_text(doc)
+    else:
+        with open(str(file_path), 'wb') as f:
+            f.write(bytearray(doc))
+
     open_file(str(file_path))
 
 

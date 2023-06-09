@@ -12,4 +12,3 @@ def generate_iso_datetime(datetime_str: str = None) -> str:
         return datetime.strptime(datetime_str, format_string).isoformat()
     return datetime.now().strftime(format_string)
 
-

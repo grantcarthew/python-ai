@@ -173,12 +173,20 @@ def print_export_help():
 
     table.add_column('Command', justify='left', style='cyan', no_wrap=True)
     table.add_column('Description', justify='left', style='green')
-    table.add_row(f'/export', 'Exports the chat as Markdown')
+    table.add_row(
+        f'/export', 'Exports the chat using defaults for location and format')
     table.add_row(f'/export \[number]',
+                  "Exports the last 'n' messages using defaults")
+    table.add_row(f'/export \[md]', 'Exports the chat as Markdown')
+    table.add_row(f'/export \[md] \[number]',
                   "Exports the last 'n' messages as Markdown")
-    table.add_row(f'/export \[pdf]', 'Exports the chat as a PDF')
+    table.add_row(f'/export \[html]', 'Exports the chat as HTML')
+    table.add_row(f'/export \[html] \[number]',
+                  "Exports the last 'n' messages as HTML")
+    table.add_row(f'/export \[pdf]', 'Exports the chat as PDF')
+    table.add_row(f'/export \[pdf] \[number]',
+                  "Exports the last 'n' messages as PDF")
     table.add_row(f'/export help', 'Display this help message')
     print(table)
-    rprint('[magenta]Note:[/]')
-    rprint('[green]Use the /config command to set the export location.[/]')
+    rprint('[magenta] Note: [green]Use the /config command to set the export format and location.[/]')
     print_line()

@@ -2,9 +2,34 @@ from typing import List, Dict
 from rich import print as rprint
 from datetime import datetime
 from lib import config
-from lib.ai import io
+from lib.ai import io, pdf
+from xml.dom.minidom import Document
+import sys
+from markdown import markdown
 
 chat: List[Dict[str, str]] = []
+
+html_boiler_plate = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {{content}}
+</body>
+</html>
+"""
+
+def _get_chat_title():
+    model_name = config.get_text_model_name()
+    dt = datetime.now()
+    date_str = dt.strftime('%Y-%m-%d')
+    time_str = dt.strftime('%H:%M:%S')
+    return f'ChatGPT | {model_name} | {date_str} | {time_str}\n'
 
 
 def add_user_content(user_message: str) -> None:
@@ -93,13 +118,9 @@ def is_exit_message(message: str) -> bool:
 
 def convert_to_markdown(chat_index: int = 0):
     global chat
-    model_name = config.get_text_model_name()
-    dt = datetime.now()
-    date_str = dt.strftime('%Y-%m-%d')
-    time_str = dt.strftime('%H:%M:%S')
 
     def chat_to_markdown(chat_messages):
-        doc = f'# ChatGPT | {model_name} | {date_str} | {time_str}\n'
+        doc = f'# {_get_chat_title()}'
         for part in chat_messages:
             if part['role'] == 'user':
                 doc += f'\n---\n\n## User\n\n---\n\n'
@@ -118,3 +139,21 @@ def convert_to_markdown(chat_index: int = 0):
 
     return doc
 
+def convert_to_html(chat_index: int = 0):
+    md = convert_to_markdown(chat_index=chat_index)
+    html = html_boiler_plate.replace('{{content}}', markdown(md))
+    rprint(html)
+    return html
+
+def change_format(format_type: str = 'md', chat_index: int = 0) -> str:
+    md = convert_to_markdown(chat_index=chat_index)
+
+    if format_type == 'md':
+        return md
+    if format_type == 'html':
+        return convert_to_html(chat_index=chat_index)
+    if format_type == 'pdf':
+        return pdf.convert_to_pdf(markdown(md))
+
+    rprint('Error: invalid format')
+    sys.exit(1)
