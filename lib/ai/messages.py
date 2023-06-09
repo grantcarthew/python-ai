@@ -142,7 +142,6 @@ def convert_to_markdown(chat_index: int = 0):
 def convert_to_html(chat_index: int = 0):
     md = convert_to_markdown(chat_index=chat_index)
     html = html_boiler_plate.replace('{{content}}', markdown(md))
-    rprint(html)
     return html
 
 def change_format(format_type: str = 'md', chat_index: int = 0) -> str:
@@ -153,7 +152,7 @@ def change_format(format_type: str = 'md', chat_index: int = 0) -> str:
     if format_type == 'html':
         return convert_to_html(chat_index=chat_index)
     if format_type == 'pdf':
-        return pdf.convert_to_pdf(markdown(md))
+        return pdf.convert_chat_to_pdf(chat_index=chat_index)
 
     rprint('Error: invalid format')
     sys.exit(1)
