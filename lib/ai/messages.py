@@ -116,6 +116,16 @@ def is_exit_message(message: str) -> bool:
     return False
 
 
+def get_chat_reverse_index(chat_index: int = 0) -> List:
+    chat_index = int(chat_index)
+    if chat_index == 0:
+        return chat
+    else:
+        indexOffset = chat_index * 2
+        return chat[-indexOffset:]
+
+
+
 def convert_to_markdown(chat_index: int = 0):
     global chat
 
@@ -130,14 +140,8 @@ def convert_to_markdown(chat_index: int = 0):
             doc += '\n'
         return doc
 
-    chat_index = int(chat_index)
-    if chat_index == 0:
-        doc = chat_to_markdown(chat)
-    else:
-        indexOffset = chat_index * 2
-        doc = chat_to_markdown(chat[-indexOffset:])
-
-    return doc
+    indexed_chat = get_chat_reverse_index(chat_index)
+    return chat_to_markdown(indexed_chat)
 
 def convert_to_html(chat_index: int = 0):
     md = convert_to_markdown(chat_index=chat_index)
@@ -145,14 +149,14 @@ def convert_to_html(chat_index: int = 0):
     return html
 
 def change_format(format_type: str = 'md', chat_index: int = 0) -> str:
-    md = convert_to_markdown(chat_index=chat_index)
 
     if format_type == 'md':
-        return md
+        return convert_to_markdown(chat_index=chat_index)
     if format_type == 'html':
         return convert_to_html(chat_index=chat_index)
     if format_type == 'pdf':
-        return pdf.convert_chat_to_pdf(chat_index=chat_index)
+        indexed_chat = get_chat_reverse_index(chat_index)
+        return pdf.convert_chat_to_pdf(indexed_chat)
 
     rprint('Error: invalid format')
     sys.exit(1)

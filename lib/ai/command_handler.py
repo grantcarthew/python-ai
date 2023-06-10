@@ -307,15 +307,9 @@ def export_chat(command_data: List[str]) -> None:
     if command_data_length > 1 and command_data[1].isdigit():
         chat_index = command_data[1]
 
-    doc = messages.change_format(format_type=format_type, chat_index=chat_index)
+    doc = messages.change_format(
+        format_type=format_type, chat_index=chat_index)
     io.export_chat(format_type=format_type, doc=doc)
-    sys.exit()
-
-    if len(command_data) > 1:
-        if command_data[1].isdigit():
-            pdf.export_chat_to_pdf('test.pdf', command_data[1])
-            return
-    pdf.export_chat_to_pdf('test.pdf')
 
 
 def configure_system(command_list: List[str]) -> None:

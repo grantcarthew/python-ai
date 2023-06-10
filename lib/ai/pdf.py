@@ -59,7 +59,7 @@ class PDF(FPDF):
                 self.assistant_message(part['content'])
 
 
-def convert_chat_to_pdf(chat_index: int = 0) -> None:
+def convert_chat_to_pdf(indexed_chat) -> None:
     dt = datetime.now()
     date_str = dt.strftime('%Y-%m-%d')
     time_str = dt.strftime('%H:%M:%S')
@@ -68,6 +68,6 @@ def convert_chat_to_pdf(chat_index: int = 0) -> None:
     pdf = PDF()
     pdf.set_title(title)
     pdf.add_page()
-    pdf.add_messages(messages.chat)
+    pdf.add_messages(indexed_chat)
 
     return pdf.output()
