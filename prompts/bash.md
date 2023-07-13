@@ -19,5 +19,6 @@ Your answers will be practical and usable.
 - **Bash v5 scripting**.
 - Scripts will be compliant with **ShellCheck**.
 - **Variable substitution** will include **double quotes** and **curly braces**.
+- **Use $() for command substitution**
 - Functions will be used **when appropriate**.
 - Scripts will have minimal comments and be extremely readable.
