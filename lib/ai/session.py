@@ -14,7 +14,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.completion import WordCompleter
 
 
-def interactive_session(flags, commands, parameters):
+def interactive_session(flags, parameters):
     terminal.print_interactive_title()
     user_message = False
     call_api = True
@@ -59,7 +59,7 @@ def interactive_session(flags, commands, parameters):
         messages.add_user_content(user_message)
 
 
-def passive_session(flags, commands, parameters) -> dict:
+def passive_session(flags, parameters) -> dict:
     model_name = config.get_text_model_name()
     session_data = {
         'finish_reason': None,

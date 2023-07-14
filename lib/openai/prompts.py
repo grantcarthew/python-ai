@@ -48,7 +48,7 @@ def get_prompt_first_match(filter):
 
 
 def get_prompt_match(filter):
-    if not filter:
+    if not filter or filter == '.':
         return list()
 
     results = [p for p in list_prompts() if filter in p]

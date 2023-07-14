@@ -209,25 +209,26 @@ def edit_prompts(edit_command: str) -> None:
     sys.exit(0)
 
 
-def get_prompt(prompt_command: str) -> None:
-    if prompt_command:
-        if len(prompt_command) > 1:
-            try:
-                prompt_name = pick(
-                    prompt_command, 'Choose a prepared prompt:', indicator='>')[0]
-            except KeyboardInterrupt:
-                sys.exit(0)
-        if len(prompt_command) == 1:
-            prompt_name = prompt_command[0]
+def get_prompt(prompt_list: str) -> None:
+    if len(prompt_list) == 0:
+        return (None, None)
 
-        prompt = prompts.get_prompt_content(prompt_name)
+    if len(prompt_list) > 1:
+        try:
+            prompt_name = pick(
+                prompt_list, 'Choose a prepared prompt:', indicator='>')[0]
+        except KeyboardInterrupt:
+            sys.exit(0)
+    if len(prompt_list) == 1:
+        prompt_name = prompt_list[0]
 
-        if prompt is None:
-            rprint(f'Error: Prompt "{prompt_name}" does not exist')
-            sys.exit(1)
+    prompt = prompts.get_prompt_content(prompt_name)
 
-        return (prompt_name, prompt)
-    return (None, None)
+    if prompt is None:
+        rprint(f'Error: Prompt "{prompt_name}" does not exist')
+        sys.exit(1)
+
+    return (prompt_name, prompt)
 
 
 def file_content(file_path: str) -> None:

@@ -11,10 +11,14 @@ import rich
 import shelve
 mutex = Lock()
 
+# Default values
 default_export_path = Path.home() / 'Downloads'
+default_export_format = 'md'
 
 
+# Config keys
 export_path_key = 'export_path'
+export_format_key = 'export_format'
 text_model_name_key = 'text_model_name'
 
 
@@ -84,3 +88,17 @@ def get_export_path() -> str:
 def set_export_path(export_path: str) -> None:
     """ Sets the export path in the config """
     set_value(export_path_key, export_path)
+
+
+def get_export_format() -> str:
+    """ Gets the export format from the config """
+    export_format = get_value(export_format_key)
+    if not export_format:
+        export_format = default_export_format
+        set_value(export_format_key, export_format)
+    return export_format
+
+
+def set_export_format(export_format: str) -> None:
+    """ Sets the export format in the config """
+    set_value(export_format_key, export_format)

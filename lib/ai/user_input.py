@@ -56,14 +56,19 @@ def choose_saved_chat(filter: str = None):
     saved_chat = pick(saved_chats, title, indicator='>')[0]
     return saved_chat
 
-
-def saved_chat_file_name():
+def _get_terminal_input(prompt: str):
     try:
-        rprint('[cyan]Type a file name for saving this chat:[/]')
+        rprint(f'[cyan]{prompt}:[/]')
         terminal.print_line()
         return session.prompt()
     except KeyboardInterrupt:
         sys.exit(0)
+
+
+
+def saved_chat_file_name():
+    return _get_terminal_input('Type a file name for saving this chat:')
+
 
 def get_file_path() -> str:
     rprint(f'Type in the file path:')
@@ -100,6 +105,7 @@ def launch_directory_browser() -> str:
     except:
         return get_directory_path()
 
+
 def change_text_model() -> None:
     current_model = config.get_text_model_name()
     rprint("Do you with to change the Text Model?")
@@ -108,4 +114,14 @@ def change_text_model() -> None:
         chosen_model = models.choose_model(current_model)
         config.set_text_model_name(chosen_model)
     terminal.print_title()
+
+
+def export_path():
+    rprint(f'Current export path: {config.get_export_path()}')
+    return _get_terminal_input('Enter the default export path:')
+
+
+def export_format():
+    rprint(f'Current export format: {config.expor}')
+    return _get_terminal_input('Enter the default export path:')
 

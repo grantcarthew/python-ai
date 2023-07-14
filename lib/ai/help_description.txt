@@ -4,6 +4,16 @@ The result is shown in the terminal and copied onto the clipboard.
 An OpenAI API key is required:
 export OPENAI_API_KEY=<your-private-key>
 
+Quick Start
+-----------
+$ ai . "What is a Koala?"
+
+Explanation:
+$        - Indicates the start of a command in the terminal
+ai       - The 'ai' command
+.        - A period represents no prepared prompt
+"What is a Koala?" - Your query or question
+
 Prepared Prompts
 ----------------
 You can preload prepared prompts to focus the AI.
@@ -11,9 +21,9 @@ Prepared prompts are Markdown documents in the "prompts" directory.
 If you wish to use the prepared prompts, they must be the first
 command in the terminal after 'ai'.
 
-To work with prepard prompts:
+To work with prepared prompts:
 
-ai list prompts - To list the existing prompts.
+ai question "What is a Koala?" - Use the "question.md" prepared prompt.
 ai edit - Create, edit, or delete the prepared prompts.
 ai -v <prompt> <query> - View the prompts and messages used.
 ai python - Load the python prompt for the request.

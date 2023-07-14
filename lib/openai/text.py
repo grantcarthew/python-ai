@@ -10,6 +10,7 @@ import json
 
 
 def call_gpt_async(model: str, messages: list, parameters: dict) -> dict:
+    rich.print(messages)
     response = openai.ChatCompletion.create(
         model=model,
         messages=messages,

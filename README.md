@@ -2,6 +2,8 @@
 
 A command line interface to ChatGPT and prepared prompts.
 
+**STATUS: Extremely unstable**
+
 Reference Documentation:
 
 - [Prompt Engineering](docs/prompt-engineering.md)
