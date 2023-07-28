@@ -35,8 +35,7 @@ if flags['debug']:
     rprint(f'query: {query}')
 
 if flags['edit']:
-    pass
-    # command_handler.edit_prompts(commands['edit'])
+    command_handler.edit_prompts()
 if flags['load']:
     pass
     # loaded_chat = command_handler.load(commands['load'])

@@ -201,7 +201,7 @@ def list_command(list_command: str) -> None:
     sys.exit(0)
 
 
-def edit_prompts(edit_command: str) -> None:
+def edit_prompts() -> None:
     prompts_path = prompts.get_prompts_path()
     rprint('[cyan]Opening prepared prompts for editing[/]')
     rprint(f'[cyan]Path: "{prompts_path}"[/]')
