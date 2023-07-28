@@ -48,9 +48,17 @@ if not text_model_name in model_list or flags['model']:
     config.set_text_model_name(text_model_name)
 
 prompt_name, prompt = command_handler.get_prompt(prompt_list)
-if prompt:
+if not prompt:
+    rprint('[yellow]Unknown Prompt[/]')
+    rprint('Use "ai -p" to list the prepared prompts')
+    rprint('Alternatively, use a period "." to not use a prepared prompt')
+    rprint('Example: ai . "What is a Koala?"')
+    rprint()
+    sys.exit(1)
+
+if not prompt == '.':
     messages.add_user_content(prompt)
-    messages.add_assistant_content('Understood')
+    messages.add_assistant_content('Understood, how can I help?')
 
 file_content = command_handler.file_content(flags['file'])
 if file_content:

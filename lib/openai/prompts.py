@@ -10,6 +10,8 @@ from rich.table import Table
 
 
 def get_prompt_content(prompt_name: str) -> Optional[str]:
+    if prompt_name == '.':
+        return '.'
     footer_path = (AI_PROMPTS_PATH / 'footer.md')
     prompt_file = (AI_PROMPTS_PATH / f'{prompt_name}.md')
 
@@ -48,8 +50,10 @@ def get_prompt_first_match(filter):
 
 
 def get_prompt_match(filter):
-    if not filter or filter == '.':
+    if not filter:
         return list()
+    if filter == '.':
+        return ['.']
 
     results = [p for p in list_prompts() if filter in p]
     if len(results) < 1 and '/' in filter:
