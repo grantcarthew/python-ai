@@ -56,9 +56,10 @@ def argument_parser() -> Dict[str, Union[bool, str, Path]]:
                         help='Shows metadata (synchronous forced)')
     parser.add_argument('--debug', action='store_true',
                         help='Enables debug output')
-    parser.add_argument('prompt', help='The name of a prompt or part thereof')
+    parser.add_argument('prompt', nargs='?',
+                        help='The name of a prompt or part thereof')
     parser.add_argument(
-        'query', help='The question, request, or query you have')
+        'query', nargs='?', help='The question, request, or query you have')
 
     args = parser.parse_args()
 

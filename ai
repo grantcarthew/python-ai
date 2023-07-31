@@ -37,7 +37,8 @@ if flags['debug']:
 if flags['edit']:
     command_handler.edit_prompts()
 if flags['load']:
-    pass
+    rprint('NOT IMPLEMENTED')
+    sys.exit(1)
     # loaded_chat = command_handler.load(commands['load'])
     # rprint(loaded_chat)
     # sys.exit(0)
@@ -46,6 +47,11 @@ model_list = [m['name'] for m in models.filter_models('gpt')]
 if not text_model_name in model_list or flags['model']:
     text_model_name = models.choose_model(flags['model'])
     config.set_text_model_name(text_model_name)
+
+if len(prompt_list) < 1 or not query:
+    rprint("The 'prompt' and 'query' arguments are required")
+    rprint("Example: ai . 'What is a Koala?'")
+    sys.exit(1)
 
 prompt_name, prompt = command_handler.get_prompt(prompt_list)
 if not prompt:
