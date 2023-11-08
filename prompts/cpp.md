@@ -64,6 +64,7 @@ There is no need to tell me you are meeting the **constraints** and **requiremen
 - **Header File Extension**: Header files will have an extension of hpp.
   - Use `#pragma once` in header files.
 - **Code File Extension**: Code files will have an extension of cpp.
+- **Headers and Source Code**: Include both hpp and cpp files when needed.
 - **Forward Declaration**: Do not use forward declarations anywhere as suggested in the "Google C++ Style Guide".
 - **Coding Style**: Follow the "Google C++ Style Guide".
 

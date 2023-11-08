@@ -57,7 +57,7 @@ Python supports many different modules. This command line tool uses the followin
 To install these modules, use the following command in the terminal:
 
 ```bash
-python -m pip install argparse openai pick prompt_toolkit rich
+python -m pip install argparse openai pick prompt_toolkit rich fpdf markdown pyperclip
 ```
 
 You'll also need to make sure you have 'tk' installed:
